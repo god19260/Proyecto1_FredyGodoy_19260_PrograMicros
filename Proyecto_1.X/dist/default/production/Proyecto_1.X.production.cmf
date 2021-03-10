@@ -12,9 +12,9 @@
 # in delta units.  Any other numeric values are decimal.
 %PSECTS
 $build/default/production/Proyecto_1.o
-resVect code 0 0 0 10 2
-code CODE 0 0 0 12F 2
-udata_shr COMMON 1 70 70 2 1
+resVect code 0 0 0 1E 2
+code CODE 0 0 0 1A3 2
+udata_shr COMMON 1 70 70 C 1
 config CONFIG 4 2007 2007 2 2
 # %UNUSED Section
 # This section enumerates the unused ranges of each CLASS. Each entry
@@ -30,13 +30,13 @@ BANK0 20-6F 1
 BANK1 A0-EF 1
 BANK2 110-16F 1
 BANK3 190-1EF 1
-CONST 25E-1FFF 1
-ENTRY 25E-1FFF 1
+CONST 346-1FFF 1
+ENTRY 346-1FFF 1
 IDLOC 2000-2003 2
-CODE 25E-1FFF 1
-COMMON 72-7F 1
-STRCODE 25E-1FFF 1
-STRING 25E-1FFF 1
+CODE 346-1FFF 1
+COMMON 7C-7F 1
+STRCODE 346-1FFF 1
+STRING 346-1FFF 1
 # %LINETAB Section
 # This section enumerates the file/line to address mappings.
 # The beginning of the section is indicated by %LINETAB.
@@ -51,73 +51,211 @@ STRING 25E-1FFF 1
 # All other numeric values are in decimal.
 %LINETAB
 $build/default/production/Proyecto_1.o
-0 resVect code >36:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-0 resVect code >37:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-0 resVect code >38:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-2 resVect code >39:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-3 resVect code >44:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-4 resVect code >45:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-4 resVect code >46:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-5 resVect code >47:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-6 resVect code >48:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-7 resVect code >49:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-7 resVect code >51:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-8 resVect code >54:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-9 resVect code >57:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-A resVect code >58:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-B resVect code >59:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-B resVect code >60:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-C resVect code >61:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-D resVect code >62:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-E resVect code >63:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-F resVect code >64:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-0 code CODE >69:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-100 code CODE >72:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-100 code CODE >73:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-101 code CODE >74:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-102 code CODE >75:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-103 code CODE >76:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-104 code CODE >77:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-105 code CODE >78:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-106 code CODE >79:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-107 code CODE >80:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-108 code CODE >81:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-109 code CODE >82:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10A code CODE >83:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10B code CODE >84:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10C code CODE >85:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10D code CODE >86:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10E code CODE >87:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-10F code CODE >88:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-110 code CODE >89:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-111 code CODE >90:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-112 code CODE >91:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-113 code CODE >92:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-114 code CODE >96:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-114 code CODE >99:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-116 code CODE >100:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-117 code CODE >101:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-118 code CODE >102:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-119 code CODE >105:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11A code CODE >106:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11B code CODE >107:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11C code CODE >108:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11D code CODE >109:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11E code CODE >111:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-11F code CODE >112:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-120 code CODE >116:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-122 code CODE >117:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-123 code CODE >118:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-124 code CODE >119:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-125 code CODE >121:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-127 code CODE >122:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-128 code CODE >123:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-129 code CODE >125:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-12B code CODE >126:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-12C code CODE >128:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-12D code CODE >129:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-12E code CODE >133:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
-12E code CODE >135:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+0 resVect code >58:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+0 resVect code >59:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+0 resVect code >60:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+2 resVect code >61:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+3 resVect code >67:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+4 resVect code >68:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+4 resVect code >69:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+5 resVect code >70:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+6 resVect code >71:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+7 resVect code >72:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+7 resVect code >73:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+8 resVect code >74:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+9 resVect code >76:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+A resVect code >77:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+B resVect code >78:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+C resVect code >79:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+D resVect code >80:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+E resVect code >81:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+E resVect code >82:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+F resVect code >83:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10 resVect code >84:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11 resVect code >85:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12 resVect code >86:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13 resVect code >87:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13 resVect code >88:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14 resVect code >89:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15 resVect code >91:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16 resVect code >92:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17 resVect code >94:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18 resVect code >95:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19 resVect code >96:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19 resVect code >97:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1A resVect code >98:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1B resVect code >99:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1C resVect code >101:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1D resVect code >102:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+0 code CODE >106:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+100 code CODE >109:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+100 code CODE >110:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+101 code CODE >111:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+102 code CODE >112:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+103 code CODE >113:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+104 code CODE >114:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+105 code CODE >115:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+106 code CODE >116:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+107 code CODE >117:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+108 code CODE >118:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+109 code CODE >119:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10A code CODE >120:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10B code CODE >121:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10C code CODE >122:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10D code CODE >123:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10E code CODE >124:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+10F code CODE >125:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+110 code CODE >126:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+111 code CODE >127:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+112 code CODE >128:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+113 code CODE >129:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+114 code CODE >134:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+114 code CODE >137:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+116 code CODE >138:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+117 code CODE >139:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+118 code CODE >140:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+119 code CODE >143:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11A code CODE >144:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11B code CODE >145:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11C code CODE >146:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11D code CODE >147:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+11E code CODE >149:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+120 code CODE >150:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+121 code CODE >151:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+122 code CODE >153:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+123 code CODE >154:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+124 code CODE >155:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+125 code CODE >158:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+127 code CODE >159:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+128 code CODE >160:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+129 code CODE >162:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12B code CODE >163:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12C code CODE >164:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12D code CODE >165:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12E code CODE >166:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+12F code CODE >167:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+130 code CODE >168:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+131 code CODE >169:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+132 code CODE >170:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+133 code CODE >172:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+135 code CODE >173:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+136 code CODE >174:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+137 code CODE >175:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+138 code CODE >178:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13A code CODE >179:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13B code CODE >180:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13C code CODE >181:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13D code CODE >185:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+13F code CODE >187:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+140 code CODE >188:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+141 code CODE >189:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+142 code CODE >190:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+143 code CODE >191:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+144 code CODE >192:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+145 code CODE >193:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+146 code CODE >194:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+147 code CODE >195:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+148 code CODE >196:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+149 code CODE >197:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14A code CODE >198:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14B code CODE >199:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14C code CODE >201:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14D code CODE >202:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14E code CODE >203:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14F code CODE >207:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+14F code CODE >208:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+150 code CODE >209:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+151 code CODE >210:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+152 code CODE >211:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+153 code CODE >213:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+154 code CODE >214:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+155 code CODE >216:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+156 code CODE >218:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+156 code CODE >219:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+157 code CODE >220:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+158 code CODE >221:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+159 code CODE >222:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15A code CODE >224:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15B code CODE >225:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15C code CODE >227:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15D code CODE >228:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15E code CODE >230:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+15F code CODE >231:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+160 code CODE >233:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+161 code CODE >234:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+162 code CODE >236:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+163 code CODE >237:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+164 code CODE >239:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+165 code CODE >240:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+166 code CODE >242:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+167 code CODE >243:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+168 code CODE >245:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+169 code CODE >246:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16A code CODE >248:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16B code CODE >250:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16B code CODE >251:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16C code CODE >252:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16D code CODE >253:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16E code CODE >254:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+16F code CODE >256:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+170 code CODE >257:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+171 code CODE >258:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+172 code CODE >259:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+172 code CODE >260:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+173 code CODE >261:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+174 code CODE >262:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+175 code CODE >263:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+176 code CODE >265:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+177 code CODE >266:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+178 code CODE >267:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+179 code CODE >268:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+179 code CODE >269:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17A code CODE >270:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17B code CODE >271:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17C code CODE >272:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17D code CODE >274:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17E code CODE >275:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+17F code CODE >276:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+180 code CODE >277:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+180 code CODE >278:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+181 code CODE >279:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+182 code CODE >280:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+183 code CODE >281:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+184 code CODE >283:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+185 code CODE >284:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+186 code CODE >285:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+187 code CODE >286:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+187 code CODE >287:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+188 code CODE >288:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+189 code CODE >289:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18A code CODE >290:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18B code CODE >292:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18C code CODE >293:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18D code CODE >294:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18E code CODE >295:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18E code CODE >296:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+18F code CODE >297:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+190 code CODE >298:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+191 code CODE >299:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+192 code CODE >301:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+193 code CODE >302:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+194 code CODE >303:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+195 code CODE >304:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+195 code CODE >305:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+196 code CODE >306:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+197 code CODE >307:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+198 code CODE >308:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+199 code CODE >310:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19A code CODE >311:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19B code CODE >312:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19C code CODE >313:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19C code CODE >314:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19D code CODE >315:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19E code CODE >316:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+19F code CODE >317:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1A0 code CODE >319:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1A1 code CODE >320:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
+1A2 code CODE >321:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260_PrograMicros\Proyecto_1.X\Proyecto_1.s
 # %SYMTAB Section
 # An enumeration of all symbols in the program.
 # The beginning of the section is indicated by %SYMTAB.
@@ -130,8 +268,8 @@ F resVect code >64:D:\UVG\Ciclo_1__2021\Progra_Micros\Proyecto1_FredyGodoy_19260
 # was defined in a psect then <psect> will be "-". File-name
 # is the name of the object file in which the symbol was defined.
 %SYMTAB
-__Hspace_0 12F 0 ABS 0 - -
-__Hspace_1 72 0 ABS 0 - -
+__Hspace_0 1A3 0 ABS 0 - -
+__Hspace_1 7C 0 ABS 0 - -
 __Hspace_3 0 0 ABS 0 - -
 __Hspace_4 4010 0 ABS 0 - -
 __Hudata_bank0 0 0 ABS 0 udata_bank0 -
@@ -149,8 +287,8 @@ __Hdata 0 0 ABS 0 data -
 __Lcode 0 0 ABS 0 code -
 __Ldata 0 0 ABS 0 data -
 __S0 0 0 ABS 0 - -
-__S1 72 0 ABS 0 - -
-__HresVect 20 0 code 0 resVect -
+__S1 7C 0 ABS 0 - -
+__HresVect 3C 0 code 0 resVect -
 __Lconfig 0 0 CONFIG 4 config -
 __Lspace_0 0 0 ABS 0 - -
 __Lspace_1 0 0 ABS 0 - -
@@ -186,7 +324,7 @@ __Ludata_shr 0 0 ABS 0 udata_shr -
 # and size are in units of delta. The file address is in units of bytes.
 # All other numeric quantities are in decimal.
 %SEGMENTS
-udata_shr 1 70 70 2 1
+udata_shr 1 70 70 C 1
 # %NOTES Section
 # This section contains data of all the note-psects.  The beginning of the section
 # is indicated by %NOTES. The first line indicates the name and decimal

@@ -23,13 +23,35 @@ processor 16F887
 
 ;---------------------------------------------------------
 ;------------ Variables a usar----------------------------
-PSECT udata_shr  ; common memory  
-
-    #define B_Inc 0  ; pines puerto B, Incremento y Decremento
-    #define B_Dec 1
+;---------------------------------------------------------
+PSECT udata_shr  ; common memory   
+    #define B_Modo       5    ; pines puerto B, Modo, Incremento y Decremento
+    #define B_Inc        6   
+    #define B_Dec        7
+    
     W_TEMP:         DS 1
     STATUS_TEMP:    DS 1
     
+    Banderas1:      DS 1
+    #define Sel_Dis    0
+    
+    Banderas_Dis:   DS 1
+    #define Dis_11     0
+    #define Dis_12     1
+    #define Dis_21     2
+    #define Dis_22     3
+    #define Dis_31     4
+    #define Dis_32     5
+    #define Dis_41     6
+    #define Dis_42     7
+    V_Display_11:   DS 1       ; Valor que muestra mostrará el display
+    V_Display_12:   DS 1
+    V_Display_21:   DS 1
+    V_Display_22:   DS 1
+    V_Display_31:   DS 1
+    V_Display_32:   DS 1
+    V_Display_41:   DS 1
+    V_Display_42:   DS 1
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
 PSECT resVect, class=code, abs, delta=2  
@@ -39,7 +61,8 @@ resVect:
     goto    main 
 
 ;---------------------------------------------------------
-;------------ Interrupción ---------------------------
+;------------ Interrupción -------------------------------
+;---------------------------------------------------------
 PSECT resVect, class=code, abs, delta=2  
 ORG 04h
 push:
@@ -47,13 +70,12 @@ push:
     swapf  STATUS,W
     movwf  STATUS_TEMP
 isr:
-    
     btfsc  RBIF
-    ;Interrupcion Puerto B
+    goto   Contador;Interrupcion Puerto B
    
     btfsc  T0IF
-    ;Interrupcion timer0
-
+    goto   Temporizador    ;Interrupcion timer0
+    bsf    PORTE,0
     bcf    T0IF
     BCF    RBIF
 pop: 
@@ -62,7 +84,22 @@ pop:
     swapf  W_TEMP, F
     swapf  W_TEMP, W
     RETFIE
+Contador:
+    btfss  PORTB, B_Inc
+    nop
     
+    btfss  PORTB, B_Dec
+    nop
+    
+    bcf    RBIF
+    goto   isr
+Temporizador:
+    bsf    Banderas1,Sel_Dis 
+    movlw  246
+    movwf  TMR0
+    
+    bcf    T0IF
+    goto   isr
 ;---------------------------------------------------------
 ;------------ Definición del Inicio ----------------------
 PSECT code, delta=2, abs
@@ -93,6 +130,7 @@ Display:
     
 ;---------------------------------------------------------
 ;------------ Main ---------------------------------------
+;---------------------------------------------------------
 main: 
     ;------- Configuraciones -------
     ;------- Oscilador -------------
@@ -108,28 +146,176 @@ main:
     bsf      OPTION_REG, 1
     bsf      OPTION_REG, 2
     
-    movlw    246       ; n de timer0
-    movwf    TMR0
-    ;------- Puertos ---------------
+    banksel  INTCON
+    movlw    10101000B
+    movwf    INTCON
     
+    clrf     TMR0
+    movlw    246           ; n de timer0
+    movwf    TMR0
+    
+    ;------- Puertos ---------------
+    BANKSEL  ANSEL         ; Disponer los pines como I/O Inputs
+    clrf     ANSEL 
+    clrf     ANSELH
+    
+    BANKSEL  TRISA
+    movlw    00000000B     ; PORTA Todos los pines como salidas
+    movwf    TRISA
+    movlw    00000000B     ; PORTC Todos los pines como salidas
+    movwf    TRISC
+    movlw    11111000B     ; PORTD los pines 0-2 como salidas, 3-7 como entradas
+    movwf    TRISD
+    movlw    00000000B     ; PORTE Todos los pines como salidas
+    movwf    TRISE
     ;------- Activación de pull ups
     banksel  OPTION_REG
     bcf      OPTION_REG, 7
     bsf      WPUB, B_Inc    
     bsf      WPUB, B_Dec 
     
+    ;------- Activación Interrup on change
     banksel  IOCB
-    bsf      IOCB, B_Inc   ; Habilitar Interrupt on change en B_Inc y B_Dec
+    bsf      IOCB, B_Modo 
+    bsf      IOCB, B_Inc   
     bsf      IOCB, B_Dec  
     
-    banksel  PORTA
-    movf     PORTB, W
     
+    ;------- Limpieza de puertos y variables 
+    banksel  PORTA
+    ;movf     PORTB, W
+    clrf     PORTA
+    clrf     PORTB
+    clrf     PORTC
+    clrf     PORTD
+    clrf     PORTE
+    clrf     Banderas1
+    clrf     Banderas_Dis
+    clrf     V_Display_11
+    clrf     V_Display_12
+    clrf     V_Display_31
+    clrf     V_Display_32
+    clrf     V_Display_41
+    clrf     V_Display_42
+    ;------- Activaciones de registros o puertos
     btfss    PORTB, 0      ; Primera instrucción que no genera interrupción
     nop 
-
+    bsf      Banderas_Dis, Dis_11  ; Encdender la bandera del display 1
 ;---------------------------------------------------------
-;----------- Loop Forever --------------------------------    
+;----------- Loop Forever --------------------------------
+;---------------------------------------------------------
 loop:  
+    movlw   11B
+    call    Display
+    movwf   V_Display_11
+    movwf   V_Display_42
     
-    goto     loop
+    btfsc   Banderas1,Sel_Dis
+    goto    Displays_7Seg
+    
+    goto loop
+    
+Displays_7Seg:
+    clrf    PORTA
+    clrf    PORTC
+    bsf     PORTE,0
+    bcf     Banderas1, Sel_Dis
+    
+    btfsc   Banderas_Dis, Dis_11     ; Debe encender el display 2 vía 1
+    goto    Encender_Dis12
+    
+    btfsc   Banderas_Dis, Dis_12     ; Debe encender el display 1 vía 2
+    goto    Encender_Dis21
+
+    btfsc   Banderas_Dis, Dis_21     ; Debe encender el display 2 vía 2
+    goto    Encender_Dis22
+    
+    btfsc   Banderas_Dis, Dis_22     ; Debe encender el display 1 vía 3
+    goto    Encender_Dis31
+    
+    btfsc   Banderas_Dis, Dis_31     ; Debe encender el display 2 vía 3
+    goto    Encender_Dis32
+    
+    btfsc   Banderas_Dis, Dis_32     ; Debe encender el display 1 vía 4
+    goto    Encender_Dis41
+    
+    btfsc   Banderas_Dis, Dis_41     ; Debe encender el display 2 vía 4
+    goto    Encender_Dis42
+    
+    btfsc   Banderas_Dis, Dis_42     ; Debe encender el display 1 vía 1
+    goto    Encender_Dis11
+    
+    goto loop ; No debe llegar a esta parte
+
+Encender_Dis11:
+    movf    V_Display_11,0
+    movwf   PORTA
+    movlw   00000001B ; Anodo:00000001B  Catodo:11111110B
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_42     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_11     ; Encender bandera del display actual
+    goto loop
+Encender_Dis12:
+    movf    V_Display_12,0
+    movwf   PORTA
+    movlw   00000010B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_11     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_12     ; Encender bandera del display actual
+    goto loop    
+Encender_Dis21:
+    movf    V_Display_21,0
+    movwf   PORTA
+    movlw   00000100B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_12     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_21     ; Encender bandera del display actual
+    goto loop
+Encender_Dis22:
+    movf    V_Display_22,0
+    movwf   PORTA
+    movlw   00001000B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_21     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_22     ; Encender bandera del display actual
+    goto loop
+Encender_Dis31:
+    movf    V_Display_31,0
+    movwf   PORTA
+    movlw   00010000B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_22     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_31     ; Encender bandera del display actual
+    goto loop
+Encender_Dis32:
+    movf    V_Display_32,0
+    movwf   PORTA
+    movlw   00010000B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_31     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_32     ; Encender bandera del display actual
+    goto loop
+Encender_Dis41:
+    movf    V_Display_41,0
+    movwf   PORTA
+    movlw   00100000B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_32     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_41     ; Encender bandera del display actual
+    goto loop
+Encender_Dis42:
+    movf    V_Display_42,0
+    movwf   PORTA
+    movlw   01000000B 
+    movwf   PORTC
+    
+    bcf     Banderas_Dis, Dis_41     ; Apagar bandera del display anterior
+    bsf     Banderas_Dis, Dis_42     ; Encender bandera del display actual
+    goto loop
