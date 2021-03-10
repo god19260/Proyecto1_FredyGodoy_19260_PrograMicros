@@ -4,7 +4,7 @@
     
 processor 16F887
 #include <xc.inc>
- 
+
 ; CONFIG1
   CONFIG  FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, I/O function on RA7/OSC1/CLKIN)
   CONFIG  WDTE = OFF             ; Watchdog Timer Enable bit (WDT enabled)
@@ -205,9 +205,18 @@ main:
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:  
-    movlw   11B
+    movlw   1B
     call    Display
     movwf   V_Display_11
+    movwf   V_Display_21
+    movwf   V_Display_31
+    movwf   V_Display_41
+    
+    movlw   10B
+    call    Display
+    movwf   V_Display_12
+    movwf   V_Display_22
+    movwf   V_Display_32
     movwf   V_Display_42
     
     btfsc   Banderas1,Sel_Dis
@@ -295,7 +304,7 @@ Encender_Dis31:
 Encender_Dis32:
     movf    V_Display_32,0
     movwf   PORTA
-    movlw   00010000B 
+    movlw   00100000B 
     movwf   PORTC
     
     bcf     Banderas_Dis, Dis_31     ; Apagar bandera del display anterior
@@ -304,7 +313,7 @@ Encender_Dis32:
 Encender_Dis41:
     movf    V_Display_41,0
     movwf   PORTA
-    movlw   00100000B 
+    movlw   01000000B 
     movwf   PORTC
     
     bcf     Banderas_Dis, Dis_32     ; Apagar bandera del display anterior
@@ -313,7 +322,7 @@ Encender_Dis41:
 Encender_Dis42:
     movf    V_Display_42,0
     movwf   PORTA
-    movlw   01000000B 
+    movlw   10000000B 
     movwf   PORTC
     
     bcf     Banderas_Dis, Dis_41     ; Apagar bandera del display anterior
