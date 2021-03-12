@@ -2484,8 +2484,13 @@ PSECT udata_shr ; common memory
     Banderas1: DS 1
 
 
+    Banderas_Semaforos: DS 1
+
+
+
+
     Banderas_Dis: DS 1
-# 47 "Proyecto_1.s"
+# 52 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2494,6 +2499,7 @@ PSECT udata_shr ; common memory
     V_Display_32: DS 1
     V_Display_41: DS 1
     V_Display_42: DS 1
+
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
 PSECT resVect, class=code, abs, delta=2
@@ -2525,19 +2531,20 @@ pop:
     movwf STATUS
     swapf W_TEMP, F
     swapf W_TEMP, W
+    bsf PORTE,0
     RETFIE
 Contador:
     btfss PORTB, 6
-    nop
+    incf V_Display_11,1
 
     btfss PORTB, 7
-    nop
+    decf V_Display_11,1
 
     bcf ((INTCON) and 07Fh), 0
     goto isr
 Temporizador:
     bsf Banderas1,0
-    movlw 246
+    movlw 246 ; Timer para una interrupción cada 5ms
     movwf TMR0
 
     bcf ((INTCON) and 07Fh), 2
@@ -2577,15 +2584,15 @@ main:
     ;------- Configuraciones -------
     ;------- Oscilador -------------
     BANKSEL OSCCON
-    bcf ((OSCCON) and 07Fh), 4 ; Donfiguración del reloj interno
-    bcf ((OSCCON) and 07Fh), 5
-    bsf ((OSCCON) and 07Fh), 6 ; 500khz
+    bsf ((OSCCON) and 07Fh), 4 ; Configuración del reloj interno
+    bsf ((OSCCON) and 07Fh), 5
+    bcf ((OSCCON) and 07Fh), 6 ; 500khz
 
     ;------- Timer0 ---------------
     bcf OPTION_REG, 5
     bcf OPTION_REG, 3
-    bcf OPTION_REG, 0 ; Se selecciona un preescaler de 128
-    bsf OPTION_REG, 1
+    bsf OPTION_REG, 0 ; Se selecciona un preescaler de 64
+    bcf OPTION_REG, 1
     bsf OPTION_REG, 2
 
     banksel INTCON
@@ -2604,10 +2611,13 @@ main:
     BANKSEL TRISA
     movlw 00000000B ; PORTA Todos los pines como salidas
     movwf TRISA
+
     movlw 00000000B ; PORTC Todos los pines como salidas
     movwf TRISC
-    movlw 11111000B ; PORTD los pines 0-2 como salidas, 3-7 como entradas
+
+    movlw 11000000B ; PORTD los pines 0-2 como salidas, 3-7 como entradas
     movwf TRISD
+
     movlw 00000000B ; PORTE Todos los pines como salidas
     movwf TRISE
     ;------- Activación de pull ups
@@ -2633,44 +2643,73 @@ main:
     clrf PORTE
     clrf Banderas1
     clrf Banderas_Dis
+    clrf Banderas_Semaforos
     clrf V_Display_11
     clrf V_Display_12
     clrf V_Display_31
     clrf V_Display_32
     clrf V_Display_41
     clrf V_Display_42
+
+
     ;------- Activaciones de registros o puertos
     btfss PORTB, 0 ; Primera instrucción que no genera interrupción
     nop
     bsf Banderas_Dis, 0 ; Encdender la bandera del display 1
+    bsf Banderas_Semaforos, 0 ; Encender la bandera del Semaforo 1
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-    movlw 1B
+    movf V_Display_11,0
     call Display
-    movwf V_Display_11
-    movwf V_Display_21
-    movwf V_Display_31
-    movwf V_Display_41
+    movwf V_Display_12
 
     movlw 10B
     call Display
-    movwf V_Display_12
+    movwf V_Display_21
     movwf V_Display_22
+
+    movlw 11B
+    call Display
+    movwf V_Display_31
     movwf V_Display_32
+
+    movlw 100B
+    call Display
+    movwf V_Display_41
     movwf V_Display_42
 
+
     btfsc Banderas1,0
-    goto Displays_7Seg
+    goto Seleccion_Via
 
     goto loop
+;---------------------------------------------------------
+;----------- Selección de vía para Mostrar Datos ---------
+Seleccion_Via:
+    bcf Banderas1, 0
+    ; Para este punto los valores que se representaran tanto en los semaforos
+    ; como en los displays ya estan actualizados.
+    ; Al mostrar los valores de cada una de las vías, primero
+    ; se encienden los semaforos luego los displays de cada vía
+    ; Primeo se dirige a la subrutina principal de los Semaforos,
+    ; esta se encarga de direccionar a la subrutina especifica de cada semaforo
+    ; luego se dirige a la subrutina principal de los displays,
+    ; esta se encarga de direccionar a la subrutina especifica de cada display
+    goto Displays_7Seg
 
+;---------------------------------------------------------
+;----------- Encendre Semaforos --------------------------
+
+
+
+;---------------------------------------------------------
+;----------- Encendre Displays ---------------------------
 Displays_7Seg:
+
     clrf PORTA
     clrf PORTC
-    bsf PORTE,0
-    bcf Banderas1, 0
 
     btfsc Banderas_Dis, 0 ; Debe encender el display 2 vía 1
     goto Encender_Dis12
@@ -2698,6 +2737,7 @@ Displays_7Seg:
 
     goto loop ; No debe llegar a esta parte
 
+;----------- Subrutinas Especificas de cada Display
 Encender_Dis11:
     movf V_Display_11,0
     movwf PORTA
