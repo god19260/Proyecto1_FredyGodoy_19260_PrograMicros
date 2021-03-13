@@ -4,7 +4,7 @@
     
 processor 16F887
 #include <xc.inc>
-
+#include "Macros_Subrutinas.s"
 ; CONFIG1
   CONFIG  FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, I/O function on RA7/OSC1/CLKIN)
   CONFIG  WDTE = OFF             ; Watchdog Timer Enable bit (WDT enabled)
@@ -20,6 +20,7 @@ processor 16F887
 ; CONFIG2
   CONFIG  BOR4V = BOR40V        ; Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
   CONFIG  WRT = OFF             ; Flash Program Memory Self Write Enable bits (Write protection off)
+
 
 ;---------------------------------------------------------
 ;------------ Variables a usar----------------------------
@@ -57,6 +58,10 @@ PSECT udata_shr  ; common memory
     V_Display_32:       DS 1
     V_Display_41:       DS 1
     V_Display_42:       DS 1
+    #define Verde       0         
+    #define Amarillo    1
+    #define Rojo        2
+    SEMAFORO:           DS 1
 
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
@@ -81,7 +86,7 @@ isr:
    
     btfsc  T0IF
     goto   Temporizador    ;Interrupcion timer0
-    bsf    PORTE,0
+    
     bcf    T0IF
     BCF    RBIF
 pop: 
@@ -89,7 +94,7 @@ pop:
     movwf  STATUS
     swapf  W_TEMP, F
     swapf  W_TEMP, W
-    bsf     PORTE,0
+    
     RETFIE
 Contador:
     btfss  PORTB, B_Inc
@@ -208,6 +213,7 @@ main:
     clrf     V_Display_32
     clrf     V_Display_41
     clrf     V_Display_42
+    clrf     SEMAFORO
     
     
     ;------- Activaciones de registros o puertos
@@ -255,11 +261,18 @@ Seleccion_Via:
     ; esta se encarga de direccionar a la subrutina especifica de cada semaforo 
     ; luego se dirige a la subrutina principal de los displays, 
     ; esta se encarga de direccionar a la subrutina especifica de cada display
-    goto    Displays_7Seg
+    goto    Leds_Semaforos
+    
     
 ;---------------------------------------------------------
-;----------- Encendre Semaforos --------------------------
+;----------- Encender Semaforos --------------------------
+Leds_Semaforos:
+    Leds_Semaforo 001B, Verde
+    Leds_Semaforo 010B, Amarillo
+    Leds_Semaforo 100B, Rojo
+    
 
+    goto    Displays_7Seg   
       
     
 ;---------------------------------------------------------

@@ -2453,7 +2453,23 @@ auto_size SET 0
 ENDM
 # 7 "C:\\Program Files\\Microchip\\xc8\\v2.20\\pic\\include\\xc.inc" 2 3
 # 7 "Proyecto_1.s" 2
+# 1 "./Macros_Subrutinas.s" 1
+Leds_Semaforo macro semaforo,color
+    ; Semaforo_1 = 001
+    ; Semaforo_2 = 010
+    ; Semaforo_3 = 100
 
+    movlw semaforo
+    movwf SEMAFORO
+    addwf 0x0f
+    btfsc SEMAFORO,0
+    bsf PORTD, color
+    btfsc SEMAFORO,1
+    bsf PORTD, color+3
+    btfsc SEMAFORO,2
+    bsf PORTE, color
+  endm
+# 8 "Proyecto_1.s" 2
 ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
   CONFIG WDTE = OFF ; Watchdog Timer Enable bit (WDT enabled)
@@ -2469,6 +2485,7 @@ ENDM
 ; CONFIG2
   CONFIG BOR4V = BOR40V ; Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
   CONFIG WRT = OFF ; Flash Program Memory Self Write Enable bits (Write protection off)
+
 
 ;---------------------------------------------------------
 ;------------ Variables a usar----------------------------
@@ -2490,7 +2507,7 @@ PSECT udata_shr ; common memory
 
 
     Banderas_Dis: DS 1
-# 52 "Proyecto_1.s"
+# 53 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2499,6 +2516,10 @@ PSECT udata_shr ; common memory
     V_Display_32: DS 1
     V_Display_41: DS 1
     V_Display_42: DS 1
+
+
+
+    SEMAFORO: DS 1
 
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
@@ -2523,7 +2544,7 @@ isr:
 
     btfsc ((INTCON) and 07Fh), 2
     goto Temporizador ;Interrupcion timer0
-    bsf PORTE,0
+
     bcf ((INTCON) and 07Fh), 2
     BCF ((INTCON) and 07Fh), 0
 pop:
@@ -2531,7 +2552,7 @@ pop:
     movwf STATUS
     swapf W_TEMP, F
     swapf W_TEMP, W
-    bsf PORTE,0
+
     RETFIE
 Contador:
     btfss PORTB, 6
@@ -2650,6 +2671,7 @@ main:
     clrf V_Display_32
     clrf V_Display_41
     clrf V_Display_42
+    clrf SEMAFORO
 
 
     ;------- Activaciones de registros o puertos
@@ -2697,11 +2719,20 @@ Seleccion_Via:
     ; esta se encarga de direccionar a la subrutina especifica de cada semaforo
     ; luego se dirige a la subrutina principal de los displays,
     ; esta se encarga de direccionar a la subrutina especifica de cada display
-    goto Displays_7Seg
+    goto Leds_Semaforos
+
 
 ;---------------------------------------------------------
-;----------- Encendre Semaforos --------------------------
+;----------- Encender Semaforos --------------------------
+Leds_Semaforos:
+    ;clrf PORTD
+    ;clrf PORTE
+    Leds_Semaforo 001B, 0
+    Leds_Semaforo 010B, 1
+    Leds_Semaforo 100B, 2
 
+
+    goto Displays_7Seg
 
 
 ;---------------------------------------------------------
