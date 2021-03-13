@@ -2458,7 +2458,6 @@ Leds_Semaforo macro semaforo,color
     ; Semaforo_1 = 001
     ; Semaforo_2 = 010
     ; Semaforo_3 = 100
-
     movlw semaforo
     movwf SEMAFORO
     addwf 0x0f
@@ -2468,6 +2467,7 @@ Leds_Semaforo macro semaforo,color
     bsf PORTD, color+3
     btfsc SEMAFORO,2
     bsf PORTE, color
+
   endm
 # 8 "Proyecto_1.s" 2
 ; CONFIG1
@@ -2725,8 +2725,6 @@ Seleccion_Via:
 ;---------------------------------------------------------
 ;----------- Encender Semaforos --------------------------
 Leds_Semaforos:
-    ;clrf PORTD
-    ;clrf PORTE
     Leds_Semaforo 001B, 0
     Leds_Semaforo 010B, 1
     Leds_Semaforo 100B, 2
