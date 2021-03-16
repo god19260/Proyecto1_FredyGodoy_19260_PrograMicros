@@ -2456,71 +2456,85 @@ ENDM
 # 1 "./Macros_Subrutinas.s" 1
 
 Semaforo1 macro color
- bcf PORTD, 0
- bcf PORTD, 1
- bcf PORTD, 2
- btfss color, 3
- bsf PORTD, color
+    bcf PORTD, 0
+    bcf PORTD, 1
+    bcf PORTD, 2
+    bsf PORTD, color
 endm
 
 Semaforo2 macro color
- bcf PORTD, 3
- bcf PORTD, 4
- bcf PORTD, 5
- bsf PORTD, color+3
+    bcf PORTD, 3
+    bcf PORTD, 4
+    bcf PORTD, 5
+    bsf PORTD, color+3
 endm
 
 Semaforo3 macro color
- bcf PORTE, 0
- bcf PORTE, 1
- bcf PORTE, 2
- bsf PORTE, color
+    bcf PORTE, 0
+    bcf PORTE, 1
+    bcf PORTE, 2
+    bsf PORTE, color
 endm
 
 Blink_Semaforo1 macro contador, color
- movlw 100
- subwf contador,0
- btfsc STATUS,2 ;((STATUS) and 07Fh), 2
- bsf PORTD, color
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
- bcf PORTD, color
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
- clrf contador
+    movlw 100
+    subwf contador,0
+    btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+    bsf PORTD, color
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+    bcf PORTD, color
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+    clrf contador
 endm
 
  Blink_Semaforo2 macro contador, color
- movlw 100
- subwf contador,0
- btfsc STATUS,2 ;((STATUS) and 07Fh), 2
- bsf PORTD, color+3
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
- bcf PORTD, color+3
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
- clrf contador
+    movlw 100
+    subwf contador,0
+    btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+    bsf PORTD, color+3
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+    bcf PORTD, color+3
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+    clrf contador
 endm
 
 Blink_Semaforo3 macro contador, color
- movlw 100
- subwf contador,0
- btfsc STATUS,2 ;((STATUS) and 07Fh), 2
- bsf PORTE, color
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
- bcf PORTE, color
- movlw 200
- subwf contador,0
- btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
- clrf contador
+    movlw 100
+    subwf contador,0
+    btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+    bsf PORTE, color
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+    bcf PORTE, color
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+    clrf contador
 endm
+
+Un_Segundo macro contador, registro, bit_bandera
+    ; Funciona con la interrupción de 5ms
+    movlw 200
+    subwf contador,0
+    btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+    bsf registro, bit_bandera
+ endm
+
+Tres_Segundos macro contador, registro, bit_bandera
+    movlw 3
+    subwf contador,0
+    btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+    bsf registro, bit_bandera
+ endm
 # 8 "Proyecto_1.s" 2
 ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
@@ -2541,7 +2555,7 @@ endm
 ;---------------------------------------------------------
 ;------------ Variables a usar ---------------------------
 ;---------------------------------------------------------
-PSECT udata_shr ; common memory
+PSECT udata_bank0
 
 
 
@@ -2557,8 +2571,9 @@ PSECT udata_shr ; common memory
 
 
 
+
     Banderas_Dis: DS 1
-# 52 "Proyecto_1.s"
+# 53 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2571,6 +2586,10 @@ PSECT udata_shr ; common memory
 
 
     Contador_Blink: DS 1
+    Contador_1Seg: DS 1
+    Contador_3Seg: DS 1
+    Contador_6Seg: DS 1
+
 
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
@@ -2617,9 +2636,15 @@ Contador:
 Temporizador:
     bsf Banderas1,0
     incf Contador_Blink,1
+    incf Contador_1Seg,1
+    btfsc Banderas_Semaforos, 1
+    incf Contador_3Seg,1
+
+    btfsc Banderas_Semaforos, 1
+    clrf Contador_1Seg
+
     movlw 246 ; Timer para una interrupción cada 5ms
     movwf TMR0
-
     bcf ((INTCON) and 07Fh), 2
     goto isr
 ;---------------------------------------------------------
@@ -2724,18 +2749,20 @@ main:
     clrf V_Display_41
     clrf V_Display_42
     clrf Contador_Blink
+    clrf Contador_1Seg
+    clrf Contador_3Seg
+    clrf Contador_6Seg
 
 
     ;------- Activaciones de registros o puertos
     btfss PORTB, 0 ; Primera instrucción que no genera interrupción
     nop
     bsf Banderas_Dis, 0 ; Encdender la bandera del display 1
-    bsf Banderas_Semaforos, 0 ; Encender la bandera del Semaforo 1
+
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-
     movf V_Display_11,0
     call Display
     movwf V_Display_12
@@ -2756,10 +2783,33 @@ loop:
     movwf V_Display_42
 
 
-    btfsc Banderas1,0
+    bcf Banderas_Semaforos, 1
+    bcf Banderas_Semaforos, 2
+    bcf Banderas_Semaforos, 3
+
+
+    call Tiempos
+
+    btfsc Banderas1,0 ; Mostrar valores en displays cada 5ms
     goto Seleccion_Via
 
     goto loop
+;---------------------------------------------------------
+;-------- Actualización de banderas para tiempos ---------
+Tiempos:
+    ; Dado que la interrupción del Timer 0 es de 5ms, se requieren de
+    ; 200 interrupciones para llevar 1 segundo.
+    ; Asi mismo se determinan los tiempos de tres y seis segundos
+    Un_Segundo Contador_1Seg, Banderas_Semaforos, 1
+    Tres_Segundos Contador_3Seg, Banderas_Semaforos, 2
+# 316 "Proyecto_1.s"
+    ; - -- - -- - - - - - - - - -- -- - - - - - - -- - -
+    ; Al inicio de loop se limpian las banderas para que
+    ; en el resto del proceso se tengan las referencias
+    ; de las banderas
+    ; - - --- - - - - - - - - - - - - - - - -- - - - - -
+    return ; Regresa al call de Un_Segundo en loop
+
 ;---------------------------------------------------------
 ;----------- Selección de vía para Mostrar Datos ---------
 Seleccion_Via:
@@ -2783,11 +2833,20 @@ Leds_Semaforos:
     ;Semaforo3 1
     ;Blink_Semaforo1 Contador_Blink, 0
     ;Blink_Semaforo2 Contador_Blink, 1
-    ;Blink_Semaforo3 Contador_Blink, 2
+
+    Blink_Semaforo2 Contador_Blink, 1
+
+    btfsc Banderas_Semaforos, 2
+    bsf PORTD, 0
+
+
+    call Blink_Final_Semaforo1
+    return ; Regresa a call hecho en Seleccion_Via
+
+;---- Subrutina por semaforo para blink de led verde y amarillo, 3 seg cada led
+Blink_Final_Semaforo1:
 
     return
-
-
 ;---------------------------------------------------------
 ;----------- Encendre Displays ---------------------------
 Displays_7Seg:
