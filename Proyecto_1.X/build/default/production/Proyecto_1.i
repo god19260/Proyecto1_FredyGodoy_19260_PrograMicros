@@ -2454,21 +2454,73 @@ ENDM
 # 7 "C:\\Program Files\\Microchip\\xc8\\v2.20\\pic\\include\\xc.inc" 2 3
 # 7 "Proyecto_1.s" 2
 # 1 "./Macros_Subrutinas.s" 1
-Leds_Semaforo macro semaforo,color
-    ; Semaforo_1 = 001
-    ; Semaforo_2 = 010
-    ; Semaforo_3 = 100
-    movlw semaforo
-    movwf SEMAFORO
-    addwf 0x0f
-    btfsc SEMAFORO,0
-    bsf PORTD, color
-    btfsc SEMAFORO,1
-    bsf PORTD, color+3
-    btfsc SEMAFORO,2
-    bsf PORTE, color
 
-  endm
+Semaforo1 macro color
+ bcf PORTD, 0
+ bcf PORTD, 1
+ bcf PORTD, 2
+ btfss color, 3
+ bsf PORTD, color
+endm
+
+Semaforo2 macro color
+ bcf PORTD, 3
+ bcf PORTD, 4
+ bcf PORTD, 5
+ bsf PORTD, color+3
+endm
+
+Semaforo3 macro color
+ bcf PORTE, 0
+ bcf PORTE, 1
+ bcf PORTE, 2
+ bsf PORTE, color
+endm
+
+Blink_Semaforo1 macro contador, color
+ movlw 100
+ subwf contador,0
+ btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+ bsf PORTD, color
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+ bcf PORTD, color
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+ clrf contador
+endm
+
+ Blink_Semaforo2 macro contador, color
+ movlw 100
+ subwf contador,0
+ btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+ bsf PORTD, color+3
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+ bcf PORTD, color+3
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+ clrf contador
+endm
+
+Blink_Semaforo3 macro contador, color
+ movlw 100
+ subwf contador,0
+ btfsc STATUS,2 ;((STATUS) and 07Fh), 2
+ bsf PORTE, color
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
+ bcf PORTE, color
+ movlw 200
+ subwf contador,0
+ btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
+ clrf contador
+endm
 # 8 "Proyecto_1.s" 2
 ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
@@ -2486,9 +2538,8 @@ Leds_Semaforo macro semaforo,color
   CONFIG BOR4V = BOR40V ; Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
   CONFIG WRT = OFF ; Flash Program Memory Self Write Enable bits (Write protection off)
 
-
 ;---------------------------------------------------------
-;------------ Variables a usar----------------------------
+;------------ Variables a usar ---------------------------
 ;---------------------------------------------------------
 PSECT udata_shr ; common memory
 
@@ -2507,7 +2558,7 @@ PSECT udata_shr ; common memory
 
 
     Banderas_Dis: DS 1
-# 53 "Proyecto_1.s"
+# 52 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2519,7 +2570,7 @@ PSECT udata_shr ; common memory
 
 
 
-    SEMAFORO: DS 1
+    Contador_Blink: DS 1
 
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
@@ -2565,6 +2616,7 @@ Contador:
     goto isr
 Temporizador:
     bsf Banderas1,0
+    incf Contador_Blink,1
     movlw 246 ; Timer para una interrupción cada 5ms
     movwf TMR0
 
@@ -2616,7 +2668,7 @@ main:
     bcf OPTION_REG, 1
     bsf OPTION_REG, 2
 
-    banksel INTCON
+    banksel INTCON ; Habilitar Interrupciones
     movlw 10101000B
     movwf INTCON
 
@@ -2671,7 +2723,7 @@ main:
     clrf V_Display_32
     clrf V_Display_41
     clrf V_Display_42
-    clrf SEMAFORO
+    clrf Contador_Blink
 
 
     ;------- Activaciones de registros o puertos
@@ -2683,6 +2735,7 @@ main:
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
+
     movf V_Display_11,0
     call Display
     movwf V_Display_12
@@ -2719,18 +2772,20 @@ Seleccion_Via:
     ; esta se encarga de direccionar a la subrutina especifica de cada semaforo
     ; luego se dirige a la subrutina principal de los displays,
     ; esta se encarga de direccionar a la subrutina especifica de cada display
-    goto Leds_Semaforos
-
+    call Leds_Semaforos
+    goto Displays_7Seg
 
 ;---------------------------------------------------------
 ;----------- Encender Semaforos --------------------------
 Leds_Semaforos:
-    Leds_Semaforo 001B, 0
-    Leds_Semaforo 010B, 1
-    Leds_Semaforo 100B, 2
+    ;Semaforo1 0
+    ;Semaforo2 2
+    ;Semaforo3 1
+    ;Blink_Semaforo1 Contador_Blink, 0
+    ;Blink_Semaforo2 Contador_Blink, 1
+    ;Blink_Semaforo3 Contador_Blink, 2
 
-
-    goto Displays_7Seg
+    return
 
 
 ;---------------------------------------------------------

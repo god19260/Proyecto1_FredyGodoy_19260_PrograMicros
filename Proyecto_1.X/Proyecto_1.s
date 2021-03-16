@@ -21,9 +21,8 @@ processor 16F887
   CONFIG  BOR4V = BOR40V        ; Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
   CONFIG  WRT = OFF             ; Flash Program Memory Self Write Enable bits (Write protection off)
 
-
 ;---------------------------------------------------------
-;------------ Variables a usar----------------------------
+;------------ Variables a usar ---------------------------
 ;---------------------------------------------------------
 PSECT udata_shr  ; common memory   
     #define B_Modo      5    ; pines puerto B, Modo, Incremento y Decremento
@@ -40,7 +39,7 @@ PSECT udata_shr  ; common memory
     #define Semaforo_1  0
     #define Semaforo_2  1
     #define Semaforo_3  2
-    
+    #define Blink       3
     Banderas_Dis:       DS 1
     #define Dis_11      0
     #define Dis_12      1
@@ -61,7 +60,7 @@ PSECT udata_shr  ; common memory
     #define Verde       0         
     #define Amarillo    1
     #define Rojo        2
-    SEMAFORO:           DS 1
+    Contador_Blink:     DS 1
 
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
@@ -107,6 +106,7 @@ Contador:
     goto   isr
 Temporizador:
     bsf    Banderas1,Sel_Via 
+    incf   Contador_Blink,1
     movlw  246                 ; Timer para una interrupción cada 5ms 
     movwf  TMR0
     
@@ -158,7 +158,7 @@ main:
     bcf      OPTION_REG, 1
     bsf      OPTION_REG, 2     
     
-    banksel  INTCON
+    banksel  INTCON           ; Habilitar Interrupciones
     movlw    10101000B
     movwf    INTCON
     
@@ -213,7 +213,7 @@ main:
     clrf     V_Display_32
     clrf     V_Display_41
     clrf     V_Display_42
-    clrf     SEMAFORO
+    clrf     Contador_Blink
     
     
     ;------- Activaciones de registros o puertos
@@ -225,6 +225,7 @@ main:
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:  
+    
     movf    V_Display_11,0    
     call    Display    
     movwf   V_Display_12
@@ -261,18 +262,20 @@ Seleccion_Via:
     ; esta se encarga de direccionar a la subrutina especifica de cada semaforo 
     ; luego se dirige a la subrutina principal de los displays, 
     ; esta se encarga de direccionar a la subrutina especifica de cada display
-    goto    Leds_Semaforos
-    
+    call    Leds_Semaforos
+    goto    Displays_7Seg   
     
 ;---------------------------------------------------------
 ;----------- Encender Semaforos --------------------------
 Leds_Semaforos:
-    Leds_Semaforo 001B, Verde
-    Leds_Semaforo 010B, Amarillo
-    Leds_Semaforo 100B, Rojo
+    ;Semaforo1 Verde
+    ;Semaforo2 Rojo
+    ;Semaforo3 Amarillo
+    ;Blink_Semaforo1 Contador_Blink, Verde
+    ;Blink_Semaforo2 Contador_Blink, Amarillo
+    ;Blink_Semaforo3 Contador_Blink, Rojo
     
-
-    goto    Displays_7Seg   
+    return
       
     
 ;---------------------------------------------------------
