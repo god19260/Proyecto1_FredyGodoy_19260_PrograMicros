@@ -67,18 +67,3 @@ Blink_Semaforo3 macro contador, color
     btfsc STATUS, 2 ; ZERO
     clrf contador
 endm
-
-Un_Segundo macro contador, registro, bit_bandera
-    ; Funciona con la interrupción de 5ms
-    movlw 200
-    subwf contador,0
-    btfsc STATUS, 2 ; ZERO
-    bsf registro, bit_bandera
- endm
-
-Tres_Segundos macro contador, registro, bit_bandera
-    movlw 3
-    subwf contador,0
-    btfsc STATUS, 2 ; ZERO
-    bsf registro, bit_bandera
- endm

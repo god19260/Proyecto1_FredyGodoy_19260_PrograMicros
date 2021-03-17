@@ -110,14 +110,9 @@ Contador:
     bcf    RBIF
     goto   isr
 Temporizador:
-    bsf    Banderas1,Sel_Via 
+    bsf    Banderas1,Sel_Via     
     incf   Contador_Blink,1
     incf   Contador_1Seg,1
-    btfsc  Banderas_Semaforos, Un_Seg
-    incf   Contador_3Seg,1
-    
-    btfsc  Banderas_Semaforos, Un_Seg
-    clrf   Contador_1Seg
     
     movlw  246                 ; Timer para una interrupción cada 5ms 
     movwf  TMR0
@@ -258,7 +253,6 @@ loop:
     movwf   V_Display_41
     movwf   V_Display_42
     
-    
     bcf   Banderas_Semaforos, Un_Seg
     bcf   Banderas_Semaforos, Tres_Seg
     bcf   Banderas_Semaforos, Seis_Seg
@@ -276,49 +270,43 @@ Tiempos:
     ; Dado que la interrupción del Timer 0 es de 5ms, se requieren de 
     ; 200 interrupciones para llevar 1 segundo.
     ; Asi mismo se determinan los tiempos de tres y seis segundos
-    Un_Segundo Contador_1Seg, Banderas_Semaforos, Un_Seg 
-    Tres_Segundos Contador_3Seg, Banderas_Semaforos, Tres_Seg
-    
-     /*
+    ; La primera vez que se enciende la bandera de un segundo sucede 
+    ; cuando han pasado 1.066s
+Un_Segundo:
     movlw 200              
     subwf Contador_1Seg,0
-    btfsc STATUS, 2 ; ZERO
+    btfss STATUS, 2 ; ZERO
+    goto  Fin_Tiempos
+
     bsf   Banderas_Semaforos, Un_Seg
-    
-    btfsc Banderas_Semaforos, Un_Seg  ; Reiniciamos cuando se cumple el tiempo
-    clrf  Contador_1Seg               ; de 1 segundos
-    
- Tres_Segundos:
-    btfsc Banderas_Semaforos, Un_Seg
-    incf  Contador_3Seg,1
-   
+    clrf  Contador_1Seg
+ 
+Tres_Segundos:
+    incf  Contador_3Seg
     movlw 3              
     subwf Contador_3Seg,0
-    btfsc STATUS, 2 ; ZERO
+    btfss STATUS, 2 ; ZERO
+    goto  Fin_Tiempos
+
     bsf   Banderas_Semaforos, Tres_Seg
+    clrf  Contador_3Seg
     
-    btfsc Banderas_Semaforos, Tres_Seg ; Reiniciamos cuando se cumple el tiempo
-    clrf  Contador_3Seg                ; de 3 segundos
 Seis_Segundos:
-    btfsc Banderas_Semaforos, Tres_Seg
     incf  Contador_6Seg
-    
     movlw 2              
     subwf Contador_6Seg,0
-    btfsc STATUS, 2 ; ZERO
+    btfss STATUS, 2 ; ZERO
+    goto  Fin_Tiempos
+
     bsf   Banderas_Semaforos, Seis_Seg
-    
-    btfsc Banderas_Semaforos, Seis_Seg ; Reiniciamos cuando se cumple el tiempo
-    clrf  Contador_6Seg                ; de 6 segundos
-    
-    */
-    
+    clrf  Contador_6Seg
     ; - -- - -- - - - - - - - - -- -- - - - - - - -- - -
     ; Al inicio de loop se limpian las banderas para que 
     ; en el resto del proceso se tengan las referencias 
     ; de las banderas
     ; - - --- - - - - - - - - - - - - - - - -- - - - - - 
-    return ; Regresa al call de Un_Segundo en loop 
+    Fin_Tiempos:
+    return ; Regresa al call de Tiempos en loop 
     
 ;---------------------------------------------------------
 ;----------- Selección de vía para Mostrar Datos ---------
@@ -346,8 +334,8 @@ Leds_Semaforos:
     
     Blink_Semaforo2 Contador_Blink, Amarillo
     
-    btfsc Banderas_Semaforos, Tres_Seg
-    bsf   PORTD, 0
+    ;btfsc Banderas_Semaforos, Un_Seg
+    ;incf   PORTD, 1
     
     
     call Blink_Final_Semaforo1
@@ -360,7 +348,6 @@ Blink_Final_Semaforo1:
 ;---------------------------------------------------------
 ;----------- Encendre Displays ---------------------------
 Displays_7Seg:
-    
     clrf    PORTA
     clrf    PORTC
  
