@@ -2453,7 +2453,7 @@ auto_size SET 0
 ENDM
 # 7 "C:\\Program Files\\Microchip\\xc8\\v2.20\\pic\\include\\xc.inc" 2 3
 # 7 "Proyecto_1.s" 2
-# 1 "./Macros_Subrutinas.s" 1
+# 1 "./Macros.s" 1
 
 Semaforo1 macro color
     bcf PORTD, 0
@@ -2521,7 +2521,7 @@ Blink_Semaforo3 macro contador, color
     clrf contador
 endm
 # 8 "Proyecto_1.s" 2
-; CONFIG1
+ ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
   CONFIG WDTE = OFF ; Watchdog Timer Enable bit (WDT enabled)
   CONFIG PWRTE = OFF ; Power-up Timer Enable bit (PWRT disabled)
@@ -2840,14 +2840,17 @@ Leds_Semaforos:
     ;Semaforo3 1
     ;Blink_Semaforo1 Contador_Blink, 0
     ;Blink_Semaforo2 Contador_Blink, 1
-
-    Blink_Semaforo2 Contador_Blink, 1
-
-    ;btfsc Banderas_Semaforos, 1
-    ;incf PORTD, 1
+    ;Blink_Semaforo3 Contador_Blink, 2
 
 
-    call Blink_Final_Semaforo1
+    btfss Banderas_Semaforos, 2
+    goto Fin_Leds_Semaforos
+
+    Semaforo1 0
+    Semaforo2 2
+    Semaforo3 1
+
+    Fin_Leds_Semaforos:
     return ; Regresa a call hecho en Seleccion_Via
 
 ;---- Subrutina por semaforo para blink de led verde y amarillo, 3 seg cada led

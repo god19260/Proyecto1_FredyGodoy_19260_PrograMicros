@@ -1,1 +1,1 @@
-build/default/production\Proyecto_1.i: Proyecto_1.s Macros_Subrutinas.s
+build/default/production\Proyecto_1.i: Proyecto_1.s Macros.s

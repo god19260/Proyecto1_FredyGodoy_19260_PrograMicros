@@ -4,7 +4,7 @@
     
 processor 16F887
 #include <xc.inc>
-#include "Macros_Subrutinas.s"
+#include "Macros.s"
 ; CONFIG1
   CONFIG  FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, I/O function on RA7/OSC1/CLKIN)
   CONFIG  WDTE = OFF             ; Watchdog Timer Enable bit (WDT enabled)
@@ -331,14 +331,17 @@ Leds_Semaforos:
     ;Semaforo3 Amarillo
     ;Blink_Semaforo1 Contador_Blink, Verde
     ;Blink_Semaforo2 Contador_Blink, Amarillo
-    
-    Blink_Semaforo2 Contador_Blink, Amarillo
-    
-    ;btfsc Banderas_Semaforos, Un_Seg
-    ;incf   PORTD, 1
+    ;Blink_Semaforo3 Contador_Blink, Rojo
     
     
-    call Blink_Final_Semaforo1
+    btfss Banderas_Semaforos, Tres_Seg
+    goto  Fin_Leds_Semaforos
+    
+    Semaforo1 Verde
+    Semaforo2 Rojo
+    Semaforo3 Amarillo
+    
+    Fin_Leds_Semaforos:
     return   ; Regresa a call hecho en Seleccion_Via
     
 ;---- Subrutina por semaforo para blink de led verde y amarillo, 3 seg cada led     

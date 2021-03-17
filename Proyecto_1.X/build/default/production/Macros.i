@@ -1,6 +1,6 @@
-# 1 "Macros_Subrutinas.s"
+# 1 "Macros.s"
 # 1 "<built-in>" 1
-# 1 "Macros_Subrutinas.s" 2
+# 1 "Macros.s" 2
 
 Semaforo1 macro color
     bcf PORTD, 0
