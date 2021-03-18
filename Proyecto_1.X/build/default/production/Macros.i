@@ -23,6 +23,21 @@ Semaforo3 macro color
     bsf PORTE, color
 endm
 
+Off_Semaforo1 macro
+    bcf PORTD, 0
+    bcf PORTD, 1
+    bcf PORTD, 2
+    endm
+Off_Semaforo2 macro
+    bcf PORTD, 3
+    bcf PORTD, 4
+    bcf PORTD, 5
+    endm
+Off_Semaforo3 macro
+    bcf PORTE, 0
+    bcf PORTE, 1
+    bcf PORTE, 2
+    endm
 Blink_Semaforo1 macro contador, color
     movlw 100
     subwf contador,0
