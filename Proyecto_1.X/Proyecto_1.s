@@ -24,13 +24,14 @@ processor 16F887
 ;---------------------------------------------------------
 ;------------ Variables a usar ---------------------------
 ;---------------------------------------------------------
-PSECT udata_bank0     
+PSECT udata_bank0       
+    W_TEMP:             DS 1
+    STATUS_TEMP:        DS 1
+    
+    Banderas_Botones:   DS 1
     #define B_Modo      5    ; pines puerto B, Modo, Incremento y Decremento
     #define B_Inc       6   
     #define B_Dec       7
-    
-    W_TEMP:             DS 1
-    STATUS_TEMP:        DS 1
     
     Banderas1:          DS 1
     #define Sel_Via     0
@@ -101,7 +102,7 @@ push:
     movwf  STATUS_TEMP
 isr:
     btfsc  RBIF
-    goto   Contador;Interrupcion Puerto B
+    goto   Interrupcion_PORTB;Interrupcion Puerto B
    
     btfsc  T0IF
     goto   Temporizador    ;Interrupcion timer0
@@ -115,16 +116,31 @@ pop:
     swapf  W_TEMP, W
     
     RETFIE
-Contador:
+Interrupcion_PORTB:
+    
+    ; Revisa el boton de modo
+    btfss  PORTB, B_Modo
+    bsf    Banderas_Botones, B_Modo
+    ; Revisa el boton de Incremento
+    btfss  PORTB, B_Inc
+    bsf    Banderas_Botones, B_Inc
+    ; Revisa el boton de Decremento
+    btfss  PORTB, B_Dec
+    bsf    Banderas_Botones, B_Dec
+    
+      /*
     btfss  PORTB, B_Inc
     E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
     ;incf    V_Display_11,1
     
     btfss  PORTB, B_Dec
     decf    V_Display_11,1
+    */
     
+    Fin_Interrupcion_PORTB:
     bcf    RBIF
     goto   isr
+    
 Temporizador:
     bsf    Banderas1,Sel_Via     
     incf   Contador_Blink,1
@@ -250,6 +266,8 @@ main:
     clrf     Unidades_Via2
     clrf     Decenas_Via3
     clrf     Unidades_Via3
+    clrf     Banderas_Botones
+    
     ;------- Activaciones de registros o puertos
     btfss    PORTB, 0      ; Primera instrucción que no genera interrupción
     nop 
@@ -265,7 +283,8 @@ main:
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-    
+    call Revisiones_Botones
+    call Blink_Final_Semaforo3
     
     bcf   Banderas_Semaforos, Un_Seg
     bcf   Banderas_Semaforos, Tres_Seg
@@ -274,10 +293,9 @@ loop:
     
     call  Tiempos
     call  Actualizacion_Valores_Displays
-    
+    call  Leds_Semaforos
     btfsc   Banderas1,Sel_Via  ; Mostrar valores en displays cada 5ms
     goto    Seleccion_Via 
-    
     goto loop
 Actualizacion_Valores_Displays:
     ; Actualización de valores que se mostraran en el display de la via 1
@@ -401,7 +419,6 @@ Seis_Segundos:
 
     bsf   Banderas_Semaforos, Seis_Seg
     clrf  Contador_6Seg
-     
     ; - -- - -- - - - - - - - - -- -- - - - - - - -- - -
     ; Al inicio de loop se limpian las banderas para que 
     ; en el resto del proceso se tengan las referencias 
@@ -422,7 +439,8 @@ Seleccion_Via:
     ; esta se encarga de direccionar a la subrutina especifica de cada semaforo 
     ; luego se dirige a la subrutina principal de los displays, 
     ; esta se encarga de direccionar a la subrutina especifica de cada display
-    call    Leds_Semaforos
+    
+    ;call    Leds_Semaforos
     goto    Displays_7Seg   
     
 ;---------------------------------------------------------
@@ -434,9 +452,9 @@ Leds_Semaforos:
     ;Blink_Semaforo1 Contador_Blink, Verde
     ;Blink_Semaforo2 Contador_Blink, Amarillo
     ;Blink_Semaforo3 Contador_Blink, Rojo
-    
+ 
     ;btfsc Banderas_Semaforos, Seis_Seg
-    call Blink_Final_Semaforo1
+    ;call Blink_Final_Semaforo2
     
     Fin_Leds_Semaforos:
     return   ; Regresa a call hecho en Seleccion_Via
@@ -683,3 +701,47 @@ Encender_Dis42:
     bcf     Banderas_Dis, Dis_41     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_42     ; Encender bandera del display actual
     goto loop
+
+;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Revisiones_Botones:
+    /*
+    Revision_B_Modo:
+    btfss  Banderas_Botones, B_Modo
+    goto   Revision_B_Inc
+    btfss  PORTB, B_Modo
+    bcf    Banderas_Botones, B_Modo
+    Revision_B_Inc:
+    btfss  Banderas_Botones, B_Inc
+    goto   Revision_B_Dec
+    btfss  PORTB, B_Inc
+    bcf    Banderas_Botones, B_Inc
+    Revision_B_Dec:
+    btfss  Banderas_Botones, B_Dec
+    btfss  PORTB, B_Dec
+    bcf    Banderas_Botones, B_Dec    
+    */
+    ; Revisar Banderas, Si la bandera esta en 1 es porque el boton 
+    ; fue presionado
+    Boton_Modo:
+    btfss Banderas_Botones, B_Modo
+    goto  Boton_Inc
+    ; Acciones si el boton de modo esta presionado
+    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
+    
+    ;bsf PORTD, 0
+    
+    ;bsf  Banderas_Semaforos, P_Blink
+    Boton_Inc:
+    btfss Banderas_Botones, B_Inc
+    goto  Boton_Dec
+    ; Acciones si el boton de incremento esta presionado
+    Boton_Dec:
+    btfss Banderas_Botones, B_Dec
+    goto  Fin_Revisiones_Botones
+    ; Acciones si el boton de decremento esta presionado
+    Fin_Revisiones_Botones:
+    bcf   Banderas_Botones, B_Modo
+    bcf   Banderas_Botones, B_Inc
+    bcf   Banderas_Botones, B_Dec
+    return ; Regresa a loop 
+    ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

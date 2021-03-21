@@ -53,7 +53,7 @@ Blink_Semaforo1 macro contador, color
     clrf contador
 endm
 
- Blink_Semaforo2 macro contador, color
+Blink_Semaforo2 macro contador, color
     movlw 100
     subwf contador,0
     btfsc STATUS,2 ;ZERO
@@ -89,6 +89,7 @@ E_B macro cont1, cont2, cont3, registro, bit ; Enable Blink
     clrf cont3
     bsf registro, bit
 endm
+
 
 Nuevo_Tiempo macro tiempo, contador
     movlw tiempo
