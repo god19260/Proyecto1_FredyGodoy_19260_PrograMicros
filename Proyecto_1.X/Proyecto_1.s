@@ -48,9 +48,10 @@ PSECT udata_bank0
                              ; cualquier semafaro
 			     
     Banderas_Estados:   DS 1
-    #define Estado_1    0
-    #define Estado_2    1
-    #define Estado_3    2
+    #define Inicio      0
+    #define Estado_1    1
+    #define Estado_2    2
+    #define Estado_3    3
     Banderas_Dis:       DS 1
     #define Dis_11      0
     #define Dis_12      1
@@ -79,6 +80,9 @@ PSECT udata_bank0
     Tiempo_Via1:        DS 1
     Tiempo_Via2:        DS 1
     Tiempo_Via3:        DS 1
+    TiempoDeVia1:       DS 1
+    TiempoDeVia2:       DS 1
+    TiempoDeVia3:       DS 1
     
     Decenas_Via1:       DS 1
     Unidades_Via1:      DS 1
@@ -264,6 +268,9 @@ main:
     clrf     Tiempo_Via1
     clrf     Tiempo_Via2
     clrf     Tiempo_Via3
+    clrf     TiempoDeVia1
+    clrf     TiempoDeVia2
+    clrf     TiempoDeVia3
     clrf     Contador_General
     clrf     Decenas_Via1
     clrf     Unidades_Via1
@@ -280,51 +287,99 @@ main:
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
 	; El tiempo inicial de cada via es de 10 segundos
     
-    movlw 10
-    movwf Tiempo_Via1
-    movwf Tiempo_Via2
-    movwf Tiempo_Via3
-    bsf Banderas_Estados,Estado_1
+    movlw 7
+    movwf TiempoDeVia1
+    movwf TiempoDeVia2
+    movwf TiempoDeVia3
+    bsf	  Banderas_Estados,Estado_1
+    bsf	  Banderas_Estados,Inicio
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
-loop:      
-    
-    
+loop:  
     call    Revisiones_Botones
     
     call    Tiempos
-    ;call    Estados
+    call    Estados
     call    Apagar_Banderas_Tiempos
   
     call    Leds_Semaforos
     btfsc   Banderas1,Dis_Multi  ; Mostrar valores en displays cada 5ms
     goto    Seleccion_Display 
+    
     goto loop
 ;---------- Fin Loop principal ---------------------------    
-Estados:
+Estados:    ; Estados de los semaforos
+    btfss Banderas_Estados,Inicio
+    goto  Eleccion_Estado
+    movf  TiempoDeVia1, 0
+    movwf Tiempo_Via1
+    movf  TiempoDeVia2, 0
+    movwf Tiempo_Via2
+    movf  TiempoDeVia3, 0
+    movwf Tiempo_Via3
+    Eleccion_Estado:
     btfsc Banderas_Estados,Estado_1
-    goto  Estado_1
+    goto  Estado1
+    btfsc Banderas_Estados,Estado_2
+    goto  Estado2
+    btfsc Banderas_Estados,Estado_3
+    goto  Estado3
     goto  Fin_Estados
-    Estado_1:	
+    Estado1:	
+        bcf  Banderas_Estados,Inicio
         call   Blink_Final_Semaforo1
 	movlw  200
 	subwf  Contador_General, 0
 	btfss  ZERO
 	goto   Iniciar_Blink_Semaforo1
-	DECFSZ Tiempo_Via1,1
-	DECFSZ Tiempo_Via2,1
-	DECFSZ Tiempo_Via3,1
-	clrf   Contador_General
+	decf Tiempo_Via1,1
+	decf Tiempo_Via2,1
+	decf Tiempo_Via3,1
+	clrf Contador_General
         Iniciar_Blink_Semaforo1:
-	movlw  6
-	subwf  Tiempo_Via1, 0
+	    movlw  6
+	    subwf  Tiempo_Via1, 0
+	    btfss  ZERO
+	    goto   Fin_Estados
+	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
+	    goto   Fin_Estados
+    Estado2:
+	bcf  Banderas_Estados,Inicio
+        call   Blink_Final_Semaforo2
+	movlw  200
+	subwf  Contador_General, 0
 	btfss  ZERO
-	goto   Fin_Estados
-	E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
-	goto   Fin_Estados
-    Estado_2:
-    Estado_3:
+	goto   Iniciar_Blink_Semaforo1
+	decf Tiempo_Via1,1
+	decf Tiempo_Via2,1
+	decf Tiempo_Via3,1
+	clrf Contador_General
+        Iniciar_Blink_Semaforo2:
+	    movlw  6
+	    subwf  Tiempo_Via2, 0
+	    btfss  ZERO
+	    goto   Fin_Estados
+	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
+	    goto   Fin_Estados
+    Estado3:
+	bcf  Banderas_Estados,Inicio
+        call   Blink_Final_Semaforo3
+	movlw  200
+	subwf  Contador_General, 0
+	btfss  ZERO
+	goto   Iniciar_Blink_Semaforo3
+	decf Tiempo_Via1,1
+	decf Tiempo_Via2,1
+	decf Tiempo_Via3,1
+	clrf Contador_General
+        Iniciar_Blink_Semaforo3:
+	    movlw  6
+	    subwf  Tiempo_Via3, 0
+	    btfss  ZERO
+	    goto   Fin_Estados
+	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
+	    goto   Fin_Estados
     Fin_Estados:
     return ; Regresa al loop principal
     
@@ -549,7 +604,12 @@ Blink_Final_Semaforo1:
     goto  Fin_Blink_Final_Semaforo1
     bcf   Banderas_Semaforos, Blink_A_S1
     bcf   Banderas_Semaforos, P_Blink
-    Off_Semaforo1 Amarillo
+    Off_Semaforo1 Amarillo	 
+    
+    ; Para este momento el tiempo de la via 1 llego a cero
+    bcf   Banderas_Estados,Estado_1
+    bsf   Banderas_Estados,Estado_2
+    bsf  Banderas_Estados,Inicio
     Fin_Blink_Final_Semaforo1: 
     return
     
@@ -590,6 +650,11 @@ Blink_Final_Semaforo2:
     bcf   Banderas_Semaforos, Blink_A_S2
     bcf   Banderas_Semaforos, P_Blink
     Off_Semaforo2 Amarillo
+    
+    ; Para este momento el tiempo de la via 2 llego a cero
+    bcf   Banderas_Estados,Estado_2
+    bsf   Banderas_Estados,Estado_3
+    bsf  Banderas_Estados,Inicio
     Fin_Blink_Final_Semaforo2: 
     return
 
@@ -629,6 +694,11 @@ Blink_Final_Semaforo3:
     bcf   Banderas_Semaforos, Blink_A_S3
     bcf   Banderas_Semaforos, P_Blink
     Off_Semaforo3 Amarillo
+    
+    ; Para este momento el tiempo de la via 3 llego a cero
+    bcf   Banderas_Estados,Estado_3
+    bsf   Banderas_Estados,Estado_1
+    bsf  Banderas_Estados,Inicio
     Fin_Blink_Final_Semaforo3: 
     return
   

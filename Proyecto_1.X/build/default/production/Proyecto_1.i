@@ -2611,8 +2611,9 @@ PSECT udata_bank0
 
 
 
+
     Banderas_Dis: DS 1
-# 63 "Proyecto_1.s"
+# 64 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2632,6 +2633,9 @@ PSECT udata_bank0
     Tiempo_Via1: DS 1
     Tiempo_Via2: DS 1
     Tiempo_Via3: DS 1
+    TiempoDeVia1: DS 1
+    TiempoDeVia2: DS 1
+    TiempoDeVia3: DS 1
 
     Decenas_Via1: DS 1
     Unidades_Via1: DS 1
@@ -2685,7 +2689,7 @@ Interrupcion_PORTB:
     ; Revisa el boton de Decremento
     btfss PORTB, 7
     bsf Banderas_Botones, 7
-# 145 "Proyecto_1.s"
+# 149 "Proyecto_1.s"
     Fin_Interrupcion_PORTB:
     bcf ((INTCON) and 07Fh), 0
     goto isr
@@ -2701,7 +2705,7 @@ Temporizador:
     bcf ((INTCON) and 07Fh), 2
     goto isr
 ;---------------------------------------------------------
-;------------ Definición del Inicio ----------------------
+;------------ Definición del 0 ----------------------
 PSECT code, delta=2, abs
 ORG 100h
 ;---------------------------------------------------------
@@ -2808,6 +2812,9 @@ main:
     clrf Tiempo_Via1
     clrf Tiempo_Via2
     clrf Tiempo_Via3
+    clrf TiempoDeVia1
+    clrf TiempoDeVia2
+    clrf TiempoDeVia3
     clrf Contador_General
     clrf Decenas_Via1
     clrf Unidades_Via1
@@ -2824,51 +2831,99 @@ main:
     bsf Banderas_Dis, 0 ; Encdender la bandera del display 1
  ; El tiempo inicial de cada via es de 10 segundos
 
-    movlw 10
-    movwf Tiempo_Via1
-    movwf Tiempo_Via2
-    movwf Tiempo_Via3
+    movlw 7
+    movwf TiempoDeVia1
+    movwf TiempoDeVia2
+    movwf TiempoDeVia3
+    bsf Banderas_Estados,1
     bsf Banderas_Estados,0
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-
-
     call Revisiones_Botones
 
     call Tiempos
-    ;call Estados
+    call Estados
     call Apagar_Banderas_Tiempos
 
     call Leds_Semaforos
     btfsc Banderas1,0 ; Bandera de multiplexión de displays ; Mostrar valores en displays cada 5ms
     goto Seleccion_Display
+
     goto loop
 ;---------- Fin Loop principal ---------------------------
-Estados:
-    btfsc Banderas_Estados,0
-    goto 0
+Estados: ; Estados de los semaforos
+    btfss Banderas_Estados,0
+    goto Eleccion_Estado
+    movf TiempoDeVia1, 0
+    movwf Tiempo_Via1
+    movf TiempoDeVia2, 0
+    movwf Tiempo_Via2
+    movf TiempoDeVia3, 0
+    movwf Tiempo_Via3
+    Eleccion_Estado:
+    btfsc Banderas_Estados,1
+    goto Estado1
+    btfsc Banderas_Estados,2
+    goto Estado2
+    btfsc Banderas_Estados,3
+    goto Estado3
     goto Fin_Estados
-    0:
+    Estado1:
+        bcf Banderas_Estados,0
         call Blink_Final_Semaforo1
  movlw 200
  subwf Contador_General, 0
  btfss ((STATUS) and 07Fh), 2
  goto Iniciar_Blink_Semaforo1
- DECFSZ Tiempo_Via1,1
- DECFSZ Tiempo_Via2,1
- DECFSZ Tiempo_Via3,1
+ decf Tiempo_Via1,1
+ decf Tiempo_Via2,1
+ decf Tiempo_Via3,1
  clrf Contador_General
         Iniciar_Blink_Semaforo1:
- movlw 6
- subwf Tiempo_Via1, 0
+     movlw 6
+     subwf Tiempo_Via1, 0
+     btfss ((STATUS) and 07Fh), 2
+     goto Fin_Estados
+     E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
+     goto Fin_Estados
+    Estado2:
+ bcf Banderas_Estados,0
+        call Blink_Final_Semaforo2
+ movlw 200
+ subwf Contador_General, 0
  btfss ((STATUS) and 07Fh), 2
- goto Fin_Estados
- E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
- goto Fin_Estados
-    1:
-    2:
+ goto Iniciar_Blink_Semaforo1
+ decf Tiempo_Via1,1
+ decf Tiempo_Via2,1
+ decf Tiempo_Via3,1
+ clrf Contador_General
+        Iniciar_Blink_Semaforo2:
+     movlw 6
+     subwf Tiempo_Via2, 0
+     btfss ((STATUS) and 07Fh), 2
+     goto Fin_Estados
+     E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
+     goto Fin_Estados
+    Estado3:
+ bcf Banderas_Estados,0
+        call Blink_Final_Semaforo3
+ movlw 200
+ subwf Contador_General, 0
+ btfss ((STATUS) and 07Fh), 2
+ goto Iniciar_Blink_Semaforo3
+ decf Tiempo_Via1,1
+ decf Tiempo_Via2,1
+ decf Tiempo_Via3,1
+ clrf Contador_General
+        Iniciar_Blink_Semaforo3:
+     movlw 6
+     subwf Tiempo_Via3, 0
+     btfss ((STATUS) and 07Fh), 2
+     goto Fin_Estados
+     E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
+     goto Fin_Estados
     Fin_Estados:
     return ; Regresa al loop principal
 
@@ -3094,6 +3149,11 @@ Blink_Final_Semaforo1:
     bcf Banderas_Semaforos, 4 ; Bandera del blink luz amarilla del semaforo 1
     bcf Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
     Off_Semaforo1 1
+
+    ; Para este momento el tiempo de la via 1 llego a cero
+    bcf Banderas_Estados,1
+    bsf Banderas_Estados,2
+    bsf Banderas_Estados,0
     Fin_Blink_Final_Semaforo1:
     return
 
@@ -3134,6 +3194,11 @@ Blink_Final_Semaforo2:
     bcf Banderas_Semaforos, 5 ; Bandera del blink luz amarilla del semaforo 2
     bcf Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
     Off_Semaforo2 1
+
+    ; Para este momento el tiempo de la via 2 llego a cero
+    bcf Banderas_Estados,2
+    bsf Banderas_Estados,3
+    bsf Banderas_Estados,0
     Fin_Blink_Final_Semaforo2:
     return
 
@@ -3173,6 +3238,11 @@ Blink_Final_Semaforo3:
     bcf Banderas_Semaforos, 6 ; Bandera del blink luz amarilla del semaforo 3
     bcf Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
     Off_Semaforo3 1
+
+    ; Para este momento el tiempo de la via 3 llego a cero
+    bcf Banderas_Estados,3
+    bsf Banderas_Estados,1
+    bsf Banderas_Estados,0
     Fin_Blink_Final_Semaforo3:
     return
 
@@ -3284,7 +3354,7 @@ Encender_Dis42:
 
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 Revisiones_Botones:
-# 759 "Proyecto_1.s"
+# 829 "Proyecto_1.s"
     ; Revisar Banderas, Si la bandera esta en 1 es porque el boton
     ; fue presionado
     Boton_Modo:
