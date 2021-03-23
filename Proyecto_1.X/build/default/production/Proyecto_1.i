@@ -2500,8 +2500,6 @@ Blink_Semaforo1 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
     bcf PORTD, color
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
     clrf contador
 endm
@@ -2515,8 +2513,6 @@ Blink_Semaforo2 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
     bcf PORTD, color+3
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
     clrf contador
 endm
@@ -2530,14 +2526,12 @@ Blink_Semaforo3 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;((STATUS) and 07Fh), 2
     bcf PORTE, color
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ((STATUS) and 07Fh), 2
     clrf contador
 endm
 
 E_B macro cont1, cont2, cont3, registro, bit ; Enable Blink
-    clrf cont1
+    ;clrf cont1
     clrf cont2
     clrf cont3
     bsf registro, bit
@@ -2549,7 +2543,7 @@ Nuevo_Tiempo macro tiempo, contador
     movwf contador
 endm
 
-inc_1Seg macro contador, incremento
+Inc_1Seg macro contador, incremento
     movlw 200
     subwf contador,0
     btfsc ((STATUS) and 07Fh), 2
@@ -2561,19 +2555,30 @@ inc_1Seg macro contador, incremento
     clrf contador
 endm
 
-dec_1Seg macro contador, decremento
-    movlw 200
-    subwf contador,0
-    btfsc ((STATUS) and 07Fh), 2
+Dec_1Seg macro decremento
     decf decremento,1
+# 116 "./Macros.s"
+endm
 
-    movlw 200
-    subwf contador,0
+Underflow macro registro
+    movlw 9
+    subwf registro, 0
     btfsc ((STATUS) and 07Fh), 2
-    clrf contador
+    movlw 20
+    btfsc ((STATUS) and 07Fh), 2
+    movwf registro
+endm
+
+Overflow macro registro
+    movlw 21
+    subwf registro, 0
+    btfsc ((STATUS) and 07Fh), 2
+    movlw 10
+    btfsc ((STATUS) and 07Fh), 2
+    movwf registro
 endm
 # 8 "Proyecto_1.s" 2
- ; CONFIG1
+; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
   CONFIG WDTE = OFF ; Watchdog Timer Enable bit (WDT enabled)
   CONFIG PWRTE = OFF ; Power-up Timer Enable bit (PWRT disabled)
@@ -2608,8 +2613,12 @@ PSECT udata_bank0
 # 48 "Proyecto_1.s"
                              ; cualquier semafaro
 
+    Banderas_Estados: DS 1
+
+
+
     Banderas_Dis: DS 1
-# 59 "Proyecto_1.s"
+# 63 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -2637,6 +2646,7 @@ PSECT udata_bank0
     Decenas_Via3: DS 1
     Unidades_Via3: DS 1
 
+    Operacion_Dis: DS 1
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
 PSECT resVect, class=code, abs, delta=2
@@ -2681,13 +2691,13 @@ Interrupcion_PORTB:
     ; Revisa el boton de Decremento
     btfss PORTB, 7
     bsf Banderas_Botones, 7
-# 140 "Proyecto_1.s"
+# 145 "Proyecto_1.s"
     Fin_Interrupcion_PORTB:
     bcf ((INTCON) and 07Fh), 0
     goto isr
 
 Temporizador:
-    bsf Banderas1,0
+    bsf Banderas1, 0 ; Bandera de multiplexión de displays
     incf Contador_Blink,1
     incf Contador_1Seg,1
     incf Contador_General,1
@@ -2812,46 +2822,83 @@ main:
     clrf Decenas_Via3
     clrf Unidades_Via3
     clrf Banderas_Botones
-
+    clrf Operacion_Dis
+    clrf Banderas_Estados
     ;------- Activaciones de registros o puertos
     btfss PORTB, 0 ; Primera instrucción que no genera interrupción
     nop
     bsf Banderas_Dis, 0 ; Encdender la bandera del display 1
  ; El tiempo inicial de cada via es de 10 segundos
-    movlw 84
+
+    movlw 7
     movwf Tiempo_Via1
-    movlw 55
     movwf Tiempo_Via2
-    movlw 99
     movwf Tiempo_Via3
+
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-    call Revisiones_Botones
-    call Blink_Final_Semaforo3
+         bsf Banderas_Estados,0
 
+    call Revisiones_Botones
+
+    call Tiempos
+    call Estados
+    call Apagar_Banderas_Tiempos
+
+    call Leds_Semaforos
+    btfsc Banderas1,0 ; Bandera de multiplexión de displays ; Mostrar valores en displays cada 5ms
+    goto Seleccion_Display
+    goto loop
+;---------- Fin Loop principal ---------------------------
+Estados:
+    ;btfsc Banderas_Estados,0
+    ;goto 0
+    ;goto Fin_Estados
+    0:
+ call Blink_Final_Semaforo1
+ movlw 200
+ subwf Contador_General, 0
+ btfsc ((STATUS) and 07Fh), 2
+ DECFSZ Tiempo_Via1,1
+ btfsc ((STATUS) and 07Fh), 2
+ clrf Contador_General
+
+ movlw 6
+ subwf Tiempo_Via1, 0
+ btfss ((STATUS) and 07Fh), 2
+ goto Fin_Estados
+ E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, 7 ; Bandera para proceso general de blink en
+ goto Fin_Estados
+    Fin_Estados:
+    return ; Regresa al loop principal
+
+;* * * * * * * * *
+Apagar_Banderas_Tiempos:
     bcf Banderas_Semaforos, 1
     bcf Banderas_Semaforos, 2
     bcf Banderas_Semaforos, 3
-
-
-    call Tiempos
-    call Actualizacion_Valores_Displays
-    call Leds_Semaforos
-    btfsc Banderas1,0 ; Mostrar valores en displays cada 5ms
-    goto Seleccion_Via
-    goto loop
+    return
 Actualizacion_Valores_Displays:
     ; Actualización de valores que se mostraran en el display de la via 1
+    clrf Decenas_Via1
+    clrf Unidades_Via1
+    clrf Decenas_Via2
+    clrf Unidades_Via2
+    clrf Decenas_Via3
+    clrf Unidades_Via3
+
+    movf Tiempo_Via1,0
+    movwf Operacion_Dis
     Decena_V1:
     movlw 10
-    subwf Tiempo_Via1, 1
+    subwf Operacion_Dis, 1
     incf Decenas_Via1,1
     btfsc ((STATUS) and 07Fh), 0
     goto Decena_V1
     movlw 10
-    addwf Tiempo_Via1,1
+    addwf Operacion_Dis,1
     decf Decenas_Via1,1
     movf Decenas_Via1,0
     andlw 0x0f
@@ -2859,12 +2906,12 @@ Actualizacion_Valores_Displays:
     movwf V_Display_12
     Unidades_V1:
     movlw 1
-    subwf Tiempo_Via1, 1
+    subwf Operacion_Dis, 1
     incf Unidades_Via1,1
     btfsc ((STATUS) and 07Fh), 0
     goto Unidades_V1
     movlw 1
-    addwf Tiempo_Via1,1
+    addwf Operacion_Dis,1
     decf Unidades_Via1,1
     movf Unidades_Via1,0
     andlw 0x0f
@@ -2872,14 +2919,16 @@ Actualizacion_Valores_Displays:
     movwf V_Display_11
 
     ; Actualización de valores que se mostraran en el display de la via 2
+    movf Tiempo_Via2,0
+    movwf Operacion_Dis
     Decena_V2:
     movlw 10
-    subwf Tiempo_Via2, 1
+    subwf Operacion_Dis, 1
     incf Decenas_Via2,1
     btfsc ((STATUS) and 07Fh), 0
     goto Decena_V2
     movlw 10
-    addwf Tiempo_Via2,1
+    addwf Operacion_Dis,1
     decf Decenas_Via2,1
     movf Decenas_Via2,0
     andlw 0x0f
@@ -2887,12 +2936,12 @@ Actualizacion_Valores_Displays:
     movwf V_Display_22
     Unidades_V2:
     movlw 1
-    subwf Tiempo_Via2, 1
+    subwf Operacion_Dis, 1
     incf Unidades_Via2,1
     btfsc ((STATUS) and 07Fh), 0
     goto Unidades_V2
     movlw 1
-    addwf Tiempo_Via2,1
+    addwf Operacion_Dis,1
     decf Unidades_Via2,1
     movf Unidades_Via2,0
     andlw 0x0f
@@ -2900,14 +2949,16 @@ Actualizacion_Valores_Displays:
     movwf V_Display_21
 
     ; Actualización de valores que se mostraran en el display de la via 3
+    movf Tiempo_Via3,0
+    movwf Operacion_Dis
     Decena_V3:
     movlw 10
-    subwf Tiempo_Via3, 1
+    subwf Operacion_Dis, 1
     incf Decenas_Via3,1
     btfsc ((STATUS) and 07Fh), 0
     goto Decena_V3
     movlw 10
-    addwf Tiempo_Via3,1
+    addwf Operacion_Dis,1
     decf Decenas_Via3,1
     movf Decenas_Via3,0
     andlw 0x0f
@@ -2915,12 +2966,12 @@ Actualizacion_Valores_Displays:
     movwf V_Display_32
     Unidades_V3:
     movlw 1
-    subwf Tiempo_Via3, 1
+    subwf Operacion_Dis, 1
     incf Unidades_Via3,1
     btfsc ((STATUS) and 07Fh), 0
     goto Unidades_V3
     movlw 1
-    addwf Tiempo_Via3,1
+    addwf Operacion_Dis,1
     decf Unidades_Via3,1
     movf Unidades_Via3,0
     andlw 0x0f
@@ -2944,7 +2995,6 @@ Un_Segundo:
 
     bsf Banderas_Semaforos, 1
     clrf Contador_1Seg
-
 Tres_Segundos:
     incf Contador_3Seg
     movlw 3
@@ -2954,7 +3004,6 @@ Tres_Segundos:
 
     bsf Banderas_Semaforos, 2
     clrf Contador_3Seg
-
 Seis_Segundos:
     incf Contador_6Seg
     movlw 2
@@ -2974,8 +3023,9 @@ Seis_Segundos:
 
 ;---------------------------------------------------------
 ;----------- Selección de vía para Mostrar Datos ---------
-Seleccion_Via:
-    bcf Banderas1, 0
+Seleccion_Display:
+    bcf Banderas1, 0 ; Bandera de multiplexión de displays
+    call Actualizacion_Valores_Displays
     ; Para este punto los valores que se representaran tanto en los semaforos
     ; como en los displays ya estan actualizados.
     ; Al mostrar los valores de cada una de las vías, primero
@@ -3249,7 +3299,7 @@ Encender_Dis42:
 
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 Revisiones_Botones:
-# 723 "Proyecto_1.s"
+# 768 "Proyecto_1.s"
     ; Revisar Banderas, Si la bandera esta en 1 es porque el boton
     ; fue presionado
     Boton_Modo:
@@ -3264,10 +3314,13 @@ Revisiones_Botones:
     Boton_Inc:
     btfss Banderas_Botones, 6
     goto Boton_Dec
+    ;incf Tiempo_Via1,1
+
     ; Acciones si el boton de incremento esta presionado
     Boton_Dec:
     btfss Banderas_Botones, 7
     goto Fin_Revisiones_Botones
+
     ; Acciones si el boton de decremento esta presionado
     Fin_Revisiones_Botones:
     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento

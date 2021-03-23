@@ -44,8 +44,6 @@ Blink_Semaforo1 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;ZERO
     bcf   PORTD, color
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ZERO
     clrf  contador
 endm
@@ -59,8 +57,6 @@ Blink_Semaforo2 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;ZERO
     bcf   PORTD, color+3
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ZERO
     clrf  contador
 endm
@@ -74,14 +70,12 @@ Blink_Semaforo3 macro contador, color
     subwf contador,0
     btfsc STATUS, 2 ;ZERO
     bcf   PORTE, color
-    movlw 200
-    subwf contador,0
     btfsc STATUS, 2 ; ZERO
     clrf  contador
 endm
 
 E_B macro cont1, cont2, cont3, registro, bit   ; Enable Blink
-    clrf cont1
+    ;clrf cont1
     clrf cont2
     clrf cont3
     bsf  registro, bit
@@ -93,7 +87,7 @@ Nuevo_Tiempo macro tiempo, contador
     movwf contador
 endm
  
-inc_1Seg macro contador, incremento
+Inc_1Seg macro contador, incremento
     movlw 200
     subwf contador,0
     btfsc ZERO
@@ -105,7 +99,9 @@ inc_1Seg macro contador, incremento
     clrf  contador
 endm
 
-dec_1Seg macro contador, decremento
+Dec_1Seg macro decremento
+    decf decremento,1
+ /*
     movlw 200
     subwf contador,0
     btfsc ZERO
@@ -115,5 +111,24 @@ dec_1Seg macro contador, decremento
     subwf contador,0
     btfsc ZERO
     clrf  contador
+ */
+
+endm
+   
+Underflow macro registro
+    movlw 9
+    subwf registro, 0 
+    btfsc ZERO
+    movlw 20
+    btfsc ZERO
+    movwf registro 
 endm
     
+Overflow macro registro
+    movlw 21
+    subwf registro, 0 
+    btfsc ZERO
+    movlw 10
+    btfsc ZERO
+    movwf registro 
+endm

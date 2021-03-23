@@ -34,8 +34,8 @@ PSECT udata_bank0
     #define B_Dec       7
     
     Banderas1:          DS 1
-    #define Sel_Via     0
-    
+    #define Dis_Multi   0    ; Bandera de multiplexión de displays 
+    #define Cont_General 1
     Banderas_Semaforos: DS 1 
     #define Blink       0
     #define Un_Seg      1
@@ -47,6 +47,10 @@ PSECT udata_bank0
     #define P_Blink     7    ; Bandera para proceso general de blink en 
                              ; cualquier semafaro
 			     
+    Banderas_Estados:   DS 1
+    #define Estado_1    0
+    #define Estado_2    1
+    #define Estado_3    2
     Banderas_Dis:       DS 1
     #define Dis_11      0
     #define Dis_12      1
@@ -82,7 +86,8 @@ PSECT udata_bank0
     Unidades_Via2:      DS 1
     Decenas_Via3:       DS 1
     Unidades_Via3:      DS 1
- 
+    
+    Operacion_Dis:      DS 1
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
 PSECT resVect, class=code, abs, delta=2  
@@ -142,7 +147,7 @@ Interrupcion_PORTB:
     goto   isr
     
 Temporizador:
-    bsf    Banderas1,Sel_Via     
+    bsf    Banderas1, Dis_Multi     
     incf   Contador_Blink,1
     incf   Contador_1Seg,1
     incf   Contador_General,1
@@ -267,46 +272,83 @@ main:
     clrf     Decenas_Via3
     clrf     Unidades_Via3
     clrf     Banderas_Botones
-    
+    clrf     Operacion_Dis
+    clrf     Banderas_Estados
     ;------- Activaciones de registros o puertos
     btfss    PORTB, 0      ; Primera instrucción que no genera interrupción
     nop 
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
 	; El tiempo inicial de cada via es de 10 segundos
-    movlw 84
+    
+    movlw 7
     movwf Tiempo_Via1
-    movlw 55
     movwf Tiempo_Via2
-    movlw 99
     movwf Tiempo_Via3
+    
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
-loop:
-    call Revisiones_Botones
-    call Blink_Final_Semaforo3
+loop:      
+         bsf Banderas_Estados,Estado_1
     
-    bcf   Banderas_Semaforos, Un_Seg
-    bcf   Banderas_Semaforos, Tres_Seg
-    bcf   Banderas_Semaforos, Seis_Seg
+    call    Revisiones_Botones
     
-    
-    call  Tiempos
-    call  Actualizacion_Valores_Displays
-    call  Leds_Semaforos
-    btfsc   Banderas1,Sel_Via  ; Mostrar valores en displays cada 5ms
-    goto    Seleccion_Via 
+    call    Tiempos
+    call    Estados
+    call    Apagar_Banderas_Tiempos
+  
+    call    Leds_Semaforos
+    btfsc   Banderas1,Dis_Multi  ; Mostrar valores en displays cada 5ms
+    goto    Seleccion_Display 
     goto loop
+;---------- Fin Loop principal ---------------------------    
+Estados:
+    ;btfsc Banderas_Estados,Estado_1
+    ;goto  Estado_1
+    ;goto  Fin_Estados
+    Estado_1:	
+	call   Blink_Final_Semaforo1
+	movlw  200
+	subwf  Contador_General, 0
+	btfsc  ZERO
+	DECFSZ Tiempo_Via1,1
+	btfsc  ZERO
+	clrf   Contador_General
+
+	movlw  6
+	subwf  Tiempo_Via1, 0
+	btfss  ZERO
+	goto   Fin_Estados
+	E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
+	goto   Fin_Estados
+    Fin_Estados:
+    return ; Regresa al loop principal
+    
+;*/*/*/*/*/* Para abajo todo esta correcto /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/    
+Apagar_Banderas_Tiempos:
+    bcf     Banderas_Semaforos, Un_Seg
+    bcf     Banderas_Semaforos, Tres_Seg
+    bcf     Banderas_Semaforos, Seis_Seg
+    return
 Actualizacion_Valores_Displays:
     ; Actualización de valores que se mostraran en el display de la via 1
+    clrf  Decenas_Via1
+    clrf  Unidades_Via1
+    clrf  Decenas_Via2
+    clrf  Unidades_Via2
+    clrf  Decenas_Via3
+    clrf  Unidades_Via3
+    
+    movf  Tiempo_Via1,0
+    movwf Operacion_Dis
     Decena_V1:
     movlw 10
-    subwf Tiempo_Via1, 1
+    subwf Operacion_Dis, 1
     incf  Decenas_Via1,1
     btfsc CARRY
     goto  Decena_V1
     movlw 10
-    addwf Tiempo_Via1,1
+    addwf Operacion_Dis,1
     decf  Decenas_Via1,1
     movf  Decenas_Via1,0
     andlw   0x0f
@@ -314,12 +356,12 @@ Actualizacion_Valores_Displays:
     movwf   V_Display_12
     Unidades_V1:
     movlw 1
-    subwf Tiempo_Via1, 1
+    subwf Operacion_Dis, 1
     incf  Unidades_Via1,1
     btfsc CARRY
     goto  Unidades_V1
     movlw 1
-    addwf Tiempo_Via1,1
+    addwf Operacion_Dis,1
     decf  Unidades_Via1,1
     movf  Unidades_Via1,0
     andlw   0x0f
@@ -327,14 +369,16 @@ Actualizacion_Valores_Displays:
     movwf   V_Display_11
     
     ; Actualización de valores que se mostraran en el display de la via 2
+    movf  Tiempo_Via2,0
+    movwf Operacion_Dis
     Decena_V2:
     movlw   10
-    subwf   Tiempo_Via2, 1
+    subwf   Operacion_Dis, 1
     incf    Decenas_Via2,1
     btfsc   CARRY
     goto    Decena_V2
     movlw   10
-    addwf   Tiempo_Via2,1
+    addwf   Operacion_Dis,1
     decf    Decenas_Via2,1
     movf    Decenas_Via2,0
     andlw   0x0f
@@ -342,12 +386,12 @@ Actualizacion_Valores_Displays:
     movwf   V_Display_22
     Unidades_V2:
     movlw   1
-    subwf   Tiempo_Via2, 1
+    subwf   Operacion_Dis, 1
     incf    Unidades_Via2,1
     btfsc   CARRY
     goto    Unidades_V2
     movlw   1
-    addwf   Tiempo_Via2,1
+    addwf   Operacion_Dis,1
     decf    Unidades_Via2,1
     movf    Unidades_Via2,0
     andlw   0x0f
@@ -355,14 +399,16 @@ Actualizacion_Valores_Displays:
     movwf   V_Display_21
     
     ; Actualización de valores que se mostraran en el display de la via 3
+    movf  Tiempo_Via3,0
+    movwf Operacion_Dis
     Decena_V3:
     movlw   10
-    subwf   Tiempo_Via3, 1
+    subwf   Operacion_Dis, 1
     incf    Decenas_Via3,1
     btfsc   CARRY
     goto    Decena_V3
     movlw   10
-    addwf   Tiempo_Via3,1
+    addwf   Operacion_Dis,1
     decf    Decenas_Via3,1
     movf    Decenas_Via3,0
     andlw   0x0f
@@ -370,12 +416,12 @@ Actualizacion_Valores_Displays:
     movwf   V_Display_32
     Unidades_V3:
     movlw   1
-    subwf   Tiempo_Via3, 1
+    subwf   Operacion_Dis, 1
     incf    Unidades_Via3,1
     btfsc   CARRY
     goto    Unidades_V3
     movlw   1
-    addwf   Tiempo_Via3,1
+    addwf   Operacion_Dis,1
     decf    Unidades_Via3,1
     movf    Unidades_Via3,0
     andlw   0x0f
@@ -399,7 +445,6 @@ Un_Segundo:
 
     bsf   Banderas_Semaforos, Un_Seg
     clrf  Contador_1Seg
- 
 Tres_Segundos:
     incf  Contador_3Seg
     movlw 3              
@@ -409,7 +454,6 @@ Tres_Segundos:
 
     bsf   Banderas_Semaforos, Tres_Seg
     clrf  Contador_3Seg
-    
 Seis_Segundos:
     incf  Contador_6Seg
     movlw 2              
@@ -429,8 +473,9 @@ Seis_Segundos:
     
 ;---------------------------------------------------------
 ;----------- Selección de vía para Mostrar Datos ---------
-Seleccion_Via:
-    bcf     Banderas1, Sel_Via
+Seleccion_Display:
+    bcf     Banderas1, Dis_Multi
+    call    Actualizacion_Valores_Displays
     ; Para este punto los valores que se representaran tanto en los semaforos
     ; como en los displays ya estan actualizados.
     ; Al mostrar los valores de cada una de las vías, primero
@@ -734,10 +779,13 @@ Revisiones_Botones:
     Boton_Inc:
     btfss Banderas_Botones, B_Inc
     goto  Boton_Dec
+    ;incf  Tiempo_Via1,1
+    
     ; Acciones si el boton de incremento esta presionado
     Boton_Dec:
     btfss Banderas_Botones, B_Dec
     goto  Fin_Revisiones_Botones
+    
     ; Acciones si el boton de decremento esta presionado
     Fin_Revisiones_Botones:
     bcf   Banderas_Botones, B_Modo
