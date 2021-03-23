@@ -280,21 +280,21 @@ main:
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
 	; El tiempo inicial de cada via es de 10 segundos
     
-    movlw 7
+    movlw 10
     movwf Tiempo_Via1
     movwf Tiempo_Via2
     movwf Tiempo_Via3
-    
+    bsf Banderas_Estados,Estado_1
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:      
-         bsf Banderas_Estados,Estado_1
+    
     
     call    Revisiones_Botones
     
     call    Tiempos
-    call    Estados
+    ;call    Estados
     call    Apagar_Banderas_Tiempos
   
     call    Leds_Semaforos
@@ -303,24 +303,28 @@ loop:
     goto loop
 ;---------- Fin Loop principal ---------------------------    
 Estados:
-    ;btfsc Banderas_Estados,Estado_1
-    ;goto  Estado_1
-    ;goto  Fin_Estados
+    btfsc Banderas_Estados,Estado_1
+    goto  Estado_1
+    goto  Fin_Estados
     Estado_1:	
-	call   Blink_Final_Semaforo1
+        call   Blink_Final_Semaforo1
 	movlw  200
 	subwf  Contador_General, 0
-	btfsc  ZERO
+	btfss  ZERO
+	goto   Iniciar_Blink_Semaforo1
 	DECFSZ Tiempo_Via1,1
-	btfsc  ZERO
+	DECFSZ Tiempo_Via2,1
+	DECFSZ Tiempo_Via3,1
 	clrf   Contador_General
-
+        Iniciar_Blink_Semaforo1:
 	movlw  6
 	subwf  Tiempo_Via1, 0
 	btfss  ZERO
 	goto   Fin_Estados
 	E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
 	goto   Fin_Estados
+    Estado_2:
+    Estado_3:
     Fin_Estados:
     return ; Regresa al loop principal
     
@@ -523,30 +527,29 @@ Blink_Final_Semaforo1:
     ; semaforo 2. 
     ; Las siguiente condición solo sera evaluada una vez
     btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Preparar_Blink_Amarillo_Semaforo1
-       
+    goto  Amarillo_Semaforo1
+    
     ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
     ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
     ; subrutian del blink verde. 
     btfsc Banderas_Semaforos, Blink_A_S1
-    goto  Blink_Amarillo_Semaforo1 
-    
+    goto  Espera_Amarillo_Semaforo1 
     Blink_Verde_Semaforo1:
     Blink_Semaforo1 Contador_Blink, Verde
     goto  Fin_Blink_Final_Semaforo1
-    Preparar_Blink_Amarillo_Semaforo1:
-    Off_Semaforo1
+    
+    Amarillo_Semaforo1:
+    Off_Semaforo1 Verde
+    Semaforo1 Amarillo
     bsf   Banderas_Semaforos, Blink_A_S1
-    Blink_Amarillo_Semaforo1:
-    Blink_Semaforo1 Contador_Blink, Amarillo
-    
-    ; Cuando han pasado los 3 segundos del blink amarillo se apaga la bandera 
-    ; del blink amarillo del semaforo 1
-    btfsc Banderas_Semaforos, Seis_Seg
+    Espera_Amarillo_Semaforo1:
+    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
+    ; del amarillo del semaforo 1
+    btfss Banderas_Semaforos, Seis_Seg
+    goto  Fin_Blink_Final_Semaforo1
     bcf   Banderas_Semaforos, Blink_A_S1
-    
-    btfsc Banderas_Semaforos, Seis_Seg
     bcf   Banderas_Semaforos, P_Blink
+    Off_Semaforo1 Amarillo
     Fin_Blink_Final_Semaforo1: 
     return
     
@@ -558,41 +561,35 @@ Blink_Final_Semaforo2:
     
     btfss Banderas_Semaforos, P_Blink
     goto  Fin_Blink_Final_Semaforo2
-    
-    ; Resetear el contador de 1 segundo, esto para que el tiempo sean tres 
-    ; segundos de verde y tres de amarillo
-   
-    Inicio_Blink_S2:
     ; Cuando terminan los tres segundos del blink verde, se preparara para 
     ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
     ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
     ; semaforo 2. 
     ; Las siguiente condición solo sera evaluada una vez
     btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Preparar_Blink_Amarillo_Semaforo2
-       
+    goto  Amarillo_Semaforo2
+    
     ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
     ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
     ; subrutian del blink verde. 
     btfsc Banderas_Semaforos, Blink_A_S2
-    goto  Blink_Amarillo_Semaforo2 
-    
+    goto  Espera_Amarillo_Semaforo2 
     Blink_Verde_Semaforo2:
     Blink_Semaforo2 Contador_Blink, Verde
     goto  Fin_Blink_Final_Semaforo2
-    Preparar_Blink_Amarillo_Semaforo2:
-    Off_Semaforo2
+    
+    Amarillo_Semaforo2:
+    Off_Semaforo2 Verde
+    Semaforo2 Amarillo
     bsf   Banderas_Semaforos, Blink_A_S2
-    Blink_Amarillo_Semaforo2:
-    Blink_Semaforo2 Contador_Blink, Amarillo
-    
-    ; Cuando han pasado los 3 segundos del blink amarillo se apaga la bandera 
-    ; del blink amarillo del semaforo 1
-    btfsc Banderas_Semaforos, Seis_Seg
+    Espera_Amarillo_Semaforo2:
+    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
+    ; del amarillo del semaforo 2
+    btfss Banderas_Semaforos, Seis_Seg
+    goto  Fin_Blink_Final_Semaforo2
     bcf   Banderas_Semaforos, Blink_A_S2
-    
-    btfsc Banderas_Semaforos, Seis_Seg
     bcf   Banderas_Semaforos, P_Blink
+    Off_Semaforo2 Amarillo
     Fin_Blink_Final_Semaforo2: 
     return
 
@@ -603,41 +600,35 @@ Blink_Final_Semaforo3:
     
     btfss Banderas_Semaforos, P_Blink
     goto  Fin_Blink_Final_Semaforo3
-    
-    ; Resetear el contador de 1 segundo, esto para que el tiempo sean tres 
-    ; segundos de verde y tres de amarillo
-   
-    Inicio_Blink_S3:
     ; Cuando terminan los tres segundos del blink verde, se preparara para 
     ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
     ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
     ; semaforo 2. 
     ; Las siguiente condición solo sera evaluada una vez
     btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Preparar_Blink_Amarillo_Semaforo3
-       
+    goto  Amarillo_Semaforo3
+    
     ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
     ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
     ; subrutian del blink verde. 
     btfsc Banderas_Semaforos, Blink_A_S3
-    goto  Blink_Amarillo_Semaforo3 
-    
+    goto  Espera_Amarillo_Semaforo3 
     Blink_Verde_Semaforo3:
     Blink_Semaforo3 Contador_Blink, Verde
     goto  Fin_Blink_Final_Semaforo3
-    Preparar_Blink_Amarillo_Semaforo3:
-    Off_Semaforo3
+    
+    Amarillo_Semaforo3:
+    Off_Semaforo3 Verde
+    Semaforo3 Amarillo
     bsf   Banderas_Semaforos, Blink_A_S3
-    Blink_Amarillo_Semaforo3:
-    Blink_Semaforo3 Contador_Blink, Amarillo
-    
-    ; Cuando han pasado los 3 segundos del blink amarillo se apaga la bandera 
-    ; del blink amarillo del semaforo 1
-    btfsc Banderas_Semaforos, Seis_Seg
+    Espera_Amarillo_Semaforo3:
+    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
+    ; del amarillo del semaforo 3
+    btfss Banderas_Semaforos, Seis_Seg
+    goto  Fin_Blink_Final_Semaforo3
     bcf   Banderas_Semaforos, Blink_A_S3
-    
-    btfsc Banderas_Semaforos, Seis_Seg
     bcf   Banderas_Semaforos, P_Blink
+    Off_Semaforo3 Amarillo
     Fin_Blink_Final_Semaforo3: 
     return
   
