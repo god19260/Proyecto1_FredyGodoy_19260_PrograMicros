@@ -52,6 +52,10 @@ PSECT udata_bank0
     #define Estado_1    1
     #define Estado_2    2
     #define Estado_3    3
+    #define Via_1       4
+    #define Via_2       5
+    #define Via_3       6
+    
     Banderas_Dis:       DS 1
     #define Dis_11      0
     #define Dis_12      1
@@ -287,11 +291,12 @@ main:
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
 	; El tiempo inicial de cada via es de 10 segundos
     
-    movlw 7
+    movlw 10
     movwf TiempoDeVia1
     movwf TiempoDeVia2
     movwf TiempoDeVia3
     bsf	  Banderas_Estados,Estado_1
+    bsf	  Banderas_Estados,Via_1
     bsf	  Banderas_Estados,Inicio
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
@@ -312,21 +317,80 @@ loop:
 Estados:    ; Estados de los semaforos
     btfss Banderas_Estados,Inicio
     goto  Eleccion_Estado
-    movf  TiempoDeVia1, 0
-    movwf Tiempo_Via1
-    movf  TiempoDeVia2, 0
-    movwf Tiempo_Via2
-    movf  TiempoDeVia3, 0
-    movwf Tiempo_Via3
+    ; Se inicia el tiempo de alguna vía
+    TiemposParaVia1:  ; susbrutina que ordena los tiempos cuando es Via 1
+                      ; (La calle 1 lleva la vía)
+	btfss Banderas_Estados,Via_1
+	goto  TiemposParaVia2
+	
+	Off_Semaforo1 Rojo      ; Apagamos el led Rojo en el semaforo 1
+	Semaforo1 Verde         ; Encendemos el led Verde en el semaforo 1
+	Semaforo2 Rojo          ; Encender el color rojo en los semaforos 2 y 3
+	Semaforo3 Rojo
+	
+	movf  TiempoDeVia1, 0   ; Actualización del tiempo de Via 1, corresponde al 
+	movwf Tiempo_Via1       ; tiempo en el que lleva la vía
+
+	movf  TiempoDeVia1, 0   ; Actualización del tiempo de Via 2, corresponde al
+	movwf Tiempo_Via2       ; Corresponde al tiempo que estara en rojo
+
+	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 3, corresponde al
+	addwf TiempoDeVia1,0    ; Corresponde al tiempo que estara en rojo
+	movwf Tiempo_Via3
+	goto  Eleccion_Estado
+    TiemposParaVia2:  ; susbrutina que ordena los tiempos cuando es Via 2
+                      ; (La calle 1 lleva la vía)
+        
+        Off_Semaforo2 Rojo      ; Apagamos el led Rojo en el semaforo 2
+	Semaforo2 Verde         ; Encendemos el led Verde en el semaforo 2
+        Semaforo1 Rojo          ; Encender el color rojo en los semaforos 1 y 3
+	Semaforo3 Rojo
+	
+	btfss Banderas_Estados,Via_2
+	goto  TiemposParaVia3
+
+	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 1, corresponde al
+	addwf TiempoDeVia3, 0   ; Corresponde al tiempo que estara en rojo
+	movwf Tiempo_Via1
+
+	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 2, corresponde al 
+	movwf Tiempo_Via2       ; tiempo en el que lleva la vía
+
+	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 3, corresponde al
+	movwf Tiempo_Via3       ; Corresponde al tiempo que estara en rojo
+    	goto  Eleccion_Estado
+    TiemposParaVia3:  ; susbrutina que ordena los tiempos cuando es Via 3
+                      ; (La calle 1 lleva la vía)
+	btfss Banderas_Estados,Via_3
+	goto  Eleccion_Estado  ; Esta instrucción esta de mas, ya que si esta en 
+			       ; este punto es porque tiene que actualizar los 
+			       ; valores de la via 3
+	
+	Off_Semaforo3 Rojo      ; Apagamos el led Rojo en el semaforo 3
+	Semaforo3 Verde         ; Encendemos el led Verde en el semaforo 3
+	Semaforo1 Rojo          ; Encender el color rojo en los semaforos 1 y 2 
+	Semaforo2 Rojo
+
+	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 1, corresponde al 
+	movwf Tiempo_Via1       ; tiempo en el que lleva la vía
+
+	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 2, corresponde al
+	addwf TiempoDeVia1, 0   ; Corresponde al tiempo que estara en rojo
+	movwf Tiempo_Via2
+
+	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 3, corresponde al
+	movwf Tiempo_Via3       ; Corresponde al tiempo que estara en rojo
+    
     Eleccion_Estado:
-    btfsc Banderas_Estados,Estado_1
-    goto  Estado1
-    btfsc Banderas_Estados,Estado_2
-    goto  Estado2
-    btfsc Banderas_Estados,Estado_3
-    goto  Estado3
-    goto  Fin_Estados
+	btfsc Banderas_Estados,Estado_1
+	goto  Estado1
+	btfsc Banderas_Estados,Estado_2
+	goto  Estado2
+	btfsc Banderas_Estados,Estado_3
+	goto  Estado3
+	goto  Fin_Estados
     Estado1:	
+        bcf  Banderas_Estados,Via_1
         bcf  Banderas_Estados,Inicio
         call   Blink_Final_Semaforo1
 	movlw  200
@@ -345,12 +409,13 @@ Estados:    ; Estados de los semaforos
 	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
 	    goto   Fin_Estados
     Estado2:
+        bcf  Banderas_Estados,Via_2
 	bcf  Banderas_Estados,Inicio
         call   Blink_Final_Semaforo2
 	movlw  200
 	subwf  Contador_General, 0
 	btfss  ZERO
-	goto   Iniciar_Blink_Semaforo1
+	goto   Iniciar_Blink_Semaforo2
 	decf Tiempo_Via1,1
 	decf Tiempo_Via2,1
 	decf Tiempo_Via3,1
@@ -363,6 +428,7 @@ Estados:    ; Estados de los semaforos
 	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
 	    goto   Fin_Estados
     Estado3:
+        bcf  Banderas_Estados,Via_3
 	bcf  Banderas_Estados,Inicio
         call   Blink_Final_Semaforo3
 	movlw  200
@@ -572,10 +638,6 @@ Blink_Final_Semaforo1:
     btfss Banderas_Semaforos, P_Blink
     goto  Fin_Blink_Final_Semaforo1
     
-    ; Resetemos los contadores de los tiempos, esto para que el tiempo sean tres 
-    ; segundos de verde y tres de amarillo
-   
-    Inicio_Blink_S1:
     ; Cuando terminan los tres segundos del blink verde, se preparara para 
     ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
     ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
@@ -610,6 +672,7 @@ Blink_Final_Semaforo1:
     bcf   Banderas_Estados,Estado_1
     bsf   Banderas_Estados,Estado_2
     bsf  Banderas_Estados,Inicio
+    bsf  Banderas_Estados,Via_2
     Fin_Blink_Final_Semaforo1: 
     return
     
@@ -655,6 +718,7 @@ Blink_Final_Semaforo2:
     bcf   Banderas_Estados,Estado_2
     bsf   Banderas_Estados,Estado_3
     bsf  Banderas_Estados,Inicio
+    bsf  Banderas_Estados,Via_3
     Fin_Blink_Final_Semaforo2: 
     return
 
@@ -699,6 +763,7 @@ Blink_Final_Semaforo3:
     bcf   Banderas_Estados,Estado_3
     bsf   Banderas_Estados,Estado_1
     bsf  Banderas_Estados,Inicio
+    bsf  Banderas_Estados,Via_1
     Fin_Blink_Final_Semaforo3: 
     return
   
