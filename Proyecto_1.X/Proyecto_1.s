@@ -35,26 +35,20 @@ PSECT udata_bank0
     
     Banderas1:          DS 1
     #define Dis_Multi   0    ; Bandera de multiplexión de displays 
-    #define Cont_General 1
+    #define Modo_1      1    ; Bandera que indica el on/off de los ultimos 
+                             ; display
+			     
     Banderas_Semaforos: DS 1 
     #define Blink       0
     #define Un_Seg      1
-    #define Tres_Seg    2
-    #define Seis_Seg    3
-    #define Blink_A_S1  4    ; Bandera del blink luz amarilla del semaforo 1
-    #define Blink_A_S2  5    ; Bandera del blink luz amarilla del semaforo 2
-    #define Blink_A_S3  6    ; Bandera del blink luz amarilla del semaforo 3
-    #define P_Blink     7    ; Bandera para proceso general de blink en 
-                             ; cualquier semafaro
-			     
+    #define Medio_Seg   2
+    			     
     Banderas_Estados:   DS 1
-    #define Inicio      0
+    #define Cambio_Estado    0
     #define Estado_1    1
     #define Estado_2    2
     #define Estado_3    3
-    #define Via_1       4
-    #define Via_2       5
-    #define Via_3       6
+    #define Estado_4    4
     
     Banderas_Dis:       DS 1
     #define Dis_11      0
@@ -65,6 +59,7 @@ PSECT udata_bank0
     #define Dis_32      5
     #define Dis_41      6
     #define Dis_42      7
+    Tiempo_Modo:        DS 1
     V_Display_11:       DS 1       ; Valor que muestra mostrará el display
     V_Display_12:       DS 1
     V_Display_21:       DS 1
@@ -73,20 +68,22 @@ PSECT udata_bank0
     V_Display_32:       DS 1
     V_Display_41:       DS 1
     V_Display_42:       DS 1
+    
     #define Verde       0         
     #define Amarillo    1
     #define Rojo        2
+    
     Contador_Blink:     DS 1
     Contador_1Seg:      DS 1
-    Contador_3Seg:      DS 1
-    Contador_6Seg:      DS 1
     Contador_General:   DS 1
+    
+    Temporizador_1:     DS 1
+    Temporizador_2:     DS 1
+    Temporizador_3:     DS 1
+    
     Tiempo_Via1:        DS 1
     Tiempo_Via2:        DS 1
     Tiempo_Via3:        DS 1
-    TiempoDeVia1:       DS 1
-    TiempoDeVia2:       DS 1
-    TiempoDeVia3:       DS 1
     
     Decenas_Via1:       DS 1
     Unidades_Via1:      DS 1
@@ -94,8 +91,11 @@ PSECT udata_bank0
     Unidades_Via2:      DS 1
     Decenas_Via3:       DS 1
     Unidades_Via3:      DS 1
+    Decenas_Modo:       DS 1
+    Unidades_Modo:      DS 1
     
     Operacion_Dis:      DS 1
+
 ;---------------------------------------------------------
 ;------------ Reset Vector -------------------------------
 PSECT resVect, class=code, abs, delta=2  
@@ -259,6 +259,7 @@ main:
     clrf     Banderas1
     clrf     Banderas_Dis
     clrf     Banderas_Semaforos
+    clrf     Tiempo_Modo     ; variable que se en Modo
     clrf     V_Display_11
     clrf     V_Display_12
     clrf     V_Display_31
@@ -267,14 +268,12 @@ main:
     clrf     V_Display_42
     clrf     Contador_Blink
     clrf     Contador_1Seg
-    clrf     Contador_3Seg
-    clrf     Contador_6Seg
+    clrf     Temporizador_1
+    clrf     Temporizador_2
+    clrf     Temporizador_3
     clrf     Tiempo_Via1
     clrf     Tiempo_Via2
     clrf     Tiempo_Via3
-    clrf     TiempoDeVia1
-    clrf     TiempoDeVia2
-    clrf     TiempoDeVia3
     clrf     Contador_General
     clrf     Decenas_Via1
     clrf     Unidades_Via1
@@ -289,310 +288,117 @@ main:
     btfss    PORTB, 0      ; Primera instrucción que no genera interrupción
     nop 
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
-	; El tiempo inicial de cada via es de 10 segundos
     
-    movlw 10
-    movwf TiempoDeVia1
-    movwf TiempoDeVia2
-    movwf TiempoDeVia3
-    bsf	  Banderas_Estados,Estado_1
-    bsf	  Banderas_Estados,Via_1
-    bsf	  Banderas_Estados,Inicio
+    bsf	  Banderas_Estados,Estado_1            ; la primera vez que entre colocara
+    bsf   Banderas_Estados, Cambio_Estado   ; los tiempos correctos en cada 
+                                       ;display, empezando con la via 1 en verde
+	
+    
+    movlw 10          ; El tiempo inicial de cada via es de 10 segundos
+    movwf Tiempo_Via1
+    movwf Tiempo_Via2
+    movwf Tiempo_Via3
+          
+    movwf Temporizador_1
+    movwf Temporizador_2
+    movwf Temporizador_3
+    ;movwf Tiempo_Modo
+    Semaforo1 Verde
+
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:  
+    bsf Banderas1, Modo_1      ; Bandera para mostrar valores en Displays grises
+    
+    call  Tiempos
+    Blink_Semaforo1 Verde
     call    Revisiones_Botones
     
-    call    Tiempos
     call    Estados
     call    Apagar_Banderas_Tiempos
-  
-    call    Leds_Semaforos
     btfsc   Banderas1,Dis_Multi  ; Mostrar valores en displays cada 5ms
     goto    Seleccion_Display 
     
     goto loop
-;---------- Fin Loop principal ---------------------------    
-Estados:    ; Estados de los semaforos
-    btfss Banderas_Estados,Inicio
-    goto  Eleccion_Estado
-    ; Se inicia el tiempo de alguna vía
-    TiemposParaVia1:  ; susbrutina que ordena los tiempos cuando es Via 1
-                      ; (La calle 1 lleva la vía)
-	btfss Banderas_Estados,Via_1
-	goto  TiemposParaVia2
+;---------- Fin Loop principal ---------------------------  
+;---------------------------------------------------------  
+
+;---------------------------------------------------------
+;----------- Elección del Estado de cada Vía ------------- 
+Estados:      ; Estados de los semaforos
+    Cambio_Estado:
+	btfss Banderas_Estados, Cambio_Estado
+	goto Eleccion_Estado
+	; Al cambiar de estado se deben restablecer los tiempos que cada vía tiene 
 	
-	Off_Semaforo1 Rojo      ; Apagamos el led Rojo en el semaforo 1
-	Semaforo1 Verde         ; Encendemos el led Verde en el semaforo 1
-	Semaforo2 Rojo          ; Encender el color rojo en los semaforos 2 y 3
-	Semaforo3 Rojo
-	
-	movf  TiempoDeVia1, 0   ; Actualización del tiempo de Via 1, corresponde al 
-	movwf Tiempo_Via1       ; tiempo en el que lleva la vía
-
-	movf  TiempoDeVia1, 0   ; Actualización del tiempo de Via 2, corresponde al
-	movwf Tiempo_Via2       ; Corresponde al tiempo que estara en rojo
-
-	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 3, corresponde al
-	addwf TiempoDeVia1,0    ; Corresponde al tiempo que estara en rojo
-	movwf Tiempo_Via3
-	goto  Eleccion_Estado
-    TiemposParaVia2:  ; susbrutina que ordena los tiempos cuando es Via 2
-                      ; (La calle 1 lleva la vía)
-        
-        Off_Semaforo2 Rojo      ; Apagamos el led Rojo en el semaforo 2
-	Semaforo2 Verde         ; Encendemos el led Verde en el semaforo 2
-        Semaforo1 Rojo          ; Encender el color rojo en los semaforos 1 y 3
-	Semaforo3 Rojo
-	
-	btfss Banderas_Estados,Via_2
-	goto  TiemposParaVia3
-
-	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 1, corresponde al
-	addwf TiempoDeVia3, 0   ; Corresponde al tiempo que estara en rojo
-	movwf Tiempo_Via1
-
-	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 2, corresponde al 
-	movwf Tiempo_Via2       ; tiempo en el que lleva la vía
-
-	movf  TiempoDeVia2, 0   ; Actualización del tiempo de Via 3, corresponde al
-	movwf Tiempo_Via3       ; Corresponde al tiempo que estara en rojo
-    	goto  Eleccion_Estado
-    TiemposParaVia3:  ; susbrutina que ordena los tiempos cuando es Via 3
-                      ; (La calle 1 lleva la vía)
-	btfss Banderas_Estados,Via_3
-	goto  Eleccion_Estado  ; Esta instrucción esta de mas, ya que si esta en 
-			       ; este punto es porque tiene que actualizar los 
-			       ; valores de la via 3
-	
-	Off_Semaforo3 Rojo      ; Apagamos el led Rojo en el semaforo 3
-	Semaforo3 Verde         ; Encendemos el led Verde en el semaforo 3
-	Semaforo1 Rojo          ; Encender el color rojo en los semaforos 1 y 2 
-	Semaforo2 Rojo
-
-	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 1, corresponde al 
-	movwf Tiempo_Via1       ; tiempo en el que lleva la vía
-
-	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 2, corresponde al
-	addwf TiempoDeVia1, 0   ; Corresponde al tiempo que estara en rojo
-	movwf Tiempo_Via2
-
-	movf  TiempoDeVia3, 0   ; Actualización del tiempo de Via 3, corresponde al
-	movwf Tiempo_Via3       ; Corresponde al tiempo que estara en rojo
-    
+	btfsc Banderas_Estados, Estado_1    ; Revisar bandera del estado 1
+	goto  TiemposParaVia_1
+	btfsc Banderas_Estados, Estado_2    ; Revisar bandera del estado 1
+	goto  TiemposParaVia_2
+	btfsc Banderas_Estados, Estado_3    ; Revisar bandera del estado 1
+	goto  TiemposParaVia_3
+	TiemposParaVia_1:
+	    Tiempos_Via_1
+	    bcf Banderas_Estados, Cambio_Estado
+	    goto Eleccion_Estado
+	TiemposParaVia_2:
+	    Tiempos_Via_2
+	    bcf Banderas_Estados, Cambio_Estado
+	    goto Eleccion_Estado
+	TiemposParaVia_3:    
+	    Tiempos_Via_3
+	    bcf Banderas_Estados, Cambio_Estado
+	    goto Eleccion_Estado
+ 
     Eleccion_Estado:
-	btfsc Banderas_Estados,Estado_1
-	goto  Estado1
-	btfsc Banderas_Estados,Estado_2
-	goto  Estado2
-	btfsc Banderas_Estados,Estado_3
-	goto  Estado3
+    btfsc Banderas_Estados, Estado_1    ; Revisar bandera del estado 1
+    goto  Estado1
+    btfsc Banderas_Estados, Estado_2    ; Revisar bandera del estado 2
+    goto  Estado2
+    btfsc Banderas_Estados, Estado_3    ; Revisar bandera del estado 3
+    goto  Estado3
+    btfsc Banderas_Estados, Estado_4    ; Revisar bandera del estado 4
+    goto  Estado4
+    goto Fin_Estados
+    Estado1:       ; Via 1 en verde
 	goto  Fin_Estados
-    Estado1:	
-        bcf  Banderas_Estados,Via_1
-        bcf  Banderas_Estados,Inicio
-        call   Blink_Final_Semaforo1
-	movlw  200
-	subwf  Contador_General, 0
-	btfss  ZERO
-	goto   Iniciar_Blink_Semaforo1
-	decf Tiempo_Via1,1
-	decf Tiempo_Via2,1
-	decf Tiempo_Via3,1
-	clrf Contador_General
-        Iniciar_Blink_Semaforo1:
-	    movlw  6
-	    subwf  Tiempo_Via1, 0
-	    btfss  ZERO
-	    goto   Fin_Estados
-	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
-	    goto   Fin_Estados
-    Estado2:
-        bcf  Banderas_Estados,Via_2
-	bcf  Banderas_Estados,Inicio
-        call   Blink_Final_Semaforo2
-	movlw  200
-	subwf  Contador_General, 0
-	btfss  ZERO
-	goto   Iniciar_Blink_Semaforo2
-	decf Tiempo_Via1,1
-	decf Tiempo_Via2,1
-	decf Tiempo_Via3,1
-	clrf Contador_General
-        Iniciar_Blink_Semaforo2:
-	    movlw  6
-	    subwf  Tiempo_Via2, 0
-	    btfss  ZERO
-	    goto   Fin_Estados
-	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
-	    goto   Fin_Estados
-    Estado3:
-        bcf  Banderas_Estados,Via_3
-	bcf  Banderas_Estados,Inicio
-        call   Blink_Final_Semaforo3
-	movlw  200
-	subwf  Contador_General, 0
-	btfss  ZERO
-	goto   Iniciar_Blink_Semaforo3
-	decf Tiempo_Via1,1
-	decf Tiempo_Via2,1
-	decf Tiempo_Via3,1
-	clrf Contador_General
-        Iniciar_Blink_Semaforo3:
-	    movlw  6
-	    subwf  Tiempo_Via3, 0
-	    btfss  ZERO
-	    goto   Fin_Estados
-	    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
-	    goto   Fin_Estados
-    Fin_Estados:
-    return ; Regresa al loop principal
+    Estado2:       ; Vía 2 en verde
+	goto  Fin_Estados
+    Estado3:       ; Vía 3 en verde
+	goto  Fin_Estados
+    Estado4:       ; Reseteo
     
-;*/*/*/*/*/* Para abajo todo esta correcto /*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/    
+    Fin_Estados:
+return ; Regresa al loop principal
+    
+;---------------------------------------------------------
+;----------- Apagar Las banderas de los tiempos ----------   
 Apagar_Banderas_Tiempos:
     bcf     Banderas_Semaforos, Un_Seg
-    bcf     Banderas_Semaforos, Tres_Seg
-    bcf     Banderas_Semaforos, Seis_Seg
-    return
-Actualizacion_Valores_Displays:
-    ; Actualización de valores que se mostraran en el display de la via 1
-    clrf  Decenas_Via1
-    clrf  Unidades_Via1
-    clrf  Decenas_Via2
-    clrf  Unidades_Via2
-    clrf  Decenas_Via3
-    clrf  Unidades_Via3
-    
-    movf  Tiempo_Via1,0
-    movwf Operacion_Dis
-    Decena_V1:
-    movlw 10
-    subwf Operacion_Dis, 1
-    incf  Decenas_Via1,1
-    btfsc CARRY
-    goto  Decena_V1
-    movlw 10
-    addwf Operacion_Dis,1
-    decf  Decenas_Via1,1
-    movf  Decenas_Via1,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_12
-    Unidades_V1:
-    movlw 1
-    subwf Operacion_Dis, 1
-    incf  Unidades_Via1,1
-    btfsc CARRY
-    goto  Unidades_V1
-    movlw 1
-    addwf Operacion_Dis,1
-    decf  Unidades_Via1,1
-    movf  Unidades_Via1,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_11
-    
-    ; Actualización de valores que se mostraran en el display de la via 2
-    movf  Tiempo_Via2,0
-    movwf Operacion_Dis
-    Decena_V2:
-    movlw   10
-    subwf   Operacion_Dis, 1
-    incf    Decenas_Via2,1
-    btfsc   CARRY
-    goto    Decena_V2
-    movlw   10
-    addwf   Operacion_Dis,1
-    decf    Decenas_Via2,1
-    movf    Decenas_Via2,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_22
-    Unidades_V2:
-    movlw   1
-    subwf   Operacion_Dis, 1
-    incf    Unidades_Via2,1
-    btfsc   CARRY
-    goto    Unidades_V2
-    movlw   1
-    addwf   Operacion_Dis,1
-    decf    Unidades_Via2,1
-    movf    Unidades_Via2,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_21
-    
-    ; Actualización de valores que se mostraran en el display de la via 3
-    movf  Tiempo_Via3,0
-    movwf Operacion_Dis
-    Decena_V3:
-    movlw   10
-    subwf   Operacion_Dis, 1
-    incf    Decenas_Via3,1
-    btfsc   CARRY
-    goto    Decena_V3
-    movlw   10
-    addwf   Operacion_Dis,1
-    decf    Decenas_Via3,1
-    movf    Decenas_Via3,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_32
-    Unidades_V3:
-    movlw   1
-    subwf   Operacion_Dis, 1
-    incf    Unidades_Via3,1
-    btfsc   CARRY
-    goto    Unidades_V3
-    movlw   1
-    addwf   Operacion_Dis,1
-    decf    Unidades_Via3,1
-    movf    Unidades_Via3,0
-    andlw   0x0f
-    call    Display
-    movwf   V_Display_31
-    return  ; Regresa a call de Actualizacion_Valores_Displays hecho en loop
-    
+    bcf     Banderas_Semaforos, Medio_Seg
+return
+ 
 ;---------------------------------------------------------
 ;-------- Actualización de banderas para tiempos ---------
 Tiempos:
-    ; Dado que la interrupción del Timer 0 es de 5ms, se requieren de 
-    ; 200 interrupciones para llevar 1 segundo.
-    ; Asi mismo se determinan los tiempos de tres y seis segundos
-    ; La primera vez que se enciende la bandera de un segundo sucede 
-    ; cuando han pasado 1.066s
-Un_Segundo:
-    movlw 200              
-    subwf Contador_1Seg,0
-    btfss STATUS, 2 ; ZERO
-    goto  Fin_Tiempos
+    Un_Segundo:
+	movlw 200
+	subwf Contador_1Seg,W
+	btfss ZERO
+	goto  Medio_Segundo
+	bsf   Banderas_Semaforos, Un_Seg
+	clrf  Contador_1Seg
+	
 
-    bsf   Banderas_Semaforos, Un_Seg
-    clrf  Contador_1Seg
-Tres_Segundos:
-    incf  Contador_3Seg
-    movlw 3              
-    subwf Contador_3Seg,0
-    btfss STATUS, 2 ; ZERO
-    goto  Fin_Tiempos
-
-    bsf   Banderas_Semaforos, Tres_Seg
-    clrf  Contador_3Seg
-Seis_Segundos:
-    incf  Contador_6Seg
-    movlw 2              
-    subwf Contador_6Seg,0
-    btfss STATUS, 2 ; ZERO
-    goto  Fin_Tiempos
-
-    bsf   Banderas_Semaforos, Seis_Seg
-    clrf  Contador_6Seg
-    ; - -- - -- - - - - - - - - -- -- - - - - - - -- - -
-    ; Al inicio de loop se limpian las banderas para que 
-    ; en el resto del proceso se tengan las referencias 
-    ; de las banderas
-    ; - - --- - - - - - - - - - - - - - - - -- - - - - - 
+    Medio_Segundo:
+	movlw 100
+	subwf Contador_Blink,W
+	btfss ZERO
+	goto  Fin_Tiempos
+	bsf   Banderas_Semaforos, Medio_Seg
+	clrf  Contador_Blink
+	
     Fin_Tiempos:
     return ; Regresa al call de Tiempos en loop 
     
@@ -600,179 +406,13 @@ Seis_Segundos:
 ;----------- Selección de vía para Mostrar Datos ---------
 Seleccion_Display:
     bcf     Banderas1, Dis_Multi
-    call    Actualizacion_Valores_Displays
-    ; Para este punto los valores que se representaran tanto en los semaforos
-    ; como en los displays ya estan actualizados.
-    ; Al mostrar los valores de cada una de las vías, primero
-    ; se encienden los semaforos luego los displays de cada vía
-    ; Primeo se dirige a la subrutina principal de los Semaforos, 
-    ; esta se encarga de direccionar a la subrutina especifica de cada semaforo 
-    ; luego se dirige a la subrutina principal de los displays, 
-    ; esta se encarga de direccionar a la subrutina especifica de cada display
-    
-    ;call    Leds_Semaforos
-    goto    Displays_7Seg   
-    
-;---------------------------------------------------------
-;----------- Encender Semaforos --------------------------
-Leds_Semaforos:
-    ;Semaforo1 Verde
-    ;Semaforo2 Rojo
-    ;Semaforo3 Amarillo
-    ;Blink_Semaforo1 Contador_Blink, Verde
-    ;Blink_Semaforo2 Contador_Blink, Amarillo
-    ;Blink_Semaforo3 Contador_Blink, Rojo
- 
-    ;btfsc Banderas_Semaforos, Seis_Seg
-    ;call Blink_Final_Semaforo2
-    
-    Fin_Leds_Semaforos:
-    return   ; Regresa a call hecho en Seleccion_Via
-    
-;---- Subrutina por semaforo para blink de led verde y amarillo, 3 seg cada led     
-Blink_Final_Semaforo1:
-    ; El siguiente test es verdadero solo cuando la bandera previamente sea 
-    ; activada. Esta bandera se vuelve a apagar cuando se termina el proceso 
-    ; (seis segundos despues)  
-    
-    btfss Banderas_Semaforos, P_Blink
-    goto  Fin_Blink_Final_Semaforo1
-    
-    ; Cuando terminan los tres segundos del blink verde, se preparara para 
-    ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
-    ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
-    ; semaforo 2. 
-    ; Las siguiente condición solo sera evaluada una vez
-    btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Amarillo_Semaforo1
-    
-    ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
-    ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
-    ; subrutian del blink verde. 
-    btfsc Banderas_Semaforos, Blink_A_S1
-    goto  Espera_Amarillo_Semaforo1 
-    Blink_Verde_Semaforo1:
-    Blink_Semaforo1 Contador_Blink, Verde
-    goto  Fin_Blink_Final_Semaforo1
-    
-    Amarillo_Semaforo1:
-    Off_Semaforo1 Verde
-    Semaforo1 Amarillo
-    bsf   Banderas_Semaforos, Blink_A_S1
-    Espera_Amarillo_Semaforo1:
-    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
-    ; del amarillo del semaforo 1
-    btfss Banderas_Semaforos, Seis_Seg
-    goto  Fin_Blink_Final_Semaforo1
-    bcf   Banderas_Semaforos, Blink_A_S1
-    bcf   Banderas_Semaforos, P_Blink
-    Off_Semaforo1 Amarillo	 
-    
-    ; Para este momento el tiempo de la via 1 llego a cero
-    bcf   Banderas_Estados,Estado_1
-    bsf   Banderas_Estados,Estado_2
-    bsf  Banderas_Estados,Inicio
-    bsf  Banderas_Estados,Via_2
-    Fin_Blink_Final_Semaforo1: 
-    return
-    
-
-Blink_Final_Semaforo2:
-    ; El siguiente test es verdadero solo cuando la bandera previamente sea 
-    ; activada. Esta bandera se vuelve a apagar cuando se termina el proceso 
-    ; (seis segundos despues)  
-    
-    btfss Banderas_Semaforos, P_Blink
-    goto  Fin_Blink_Final_Semaforo2
-    ; Cuando terminan los tres segundos del blink verde, se preparara para 
-    ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
-    ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
-    ; semaforo 2. 
-    ; Las siguiente condición solo sera evaluada una vez
-    btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Amarillo_Semaforo2
-    
-    ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
-    ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
-    ; subrutian del blink verde. 
-    btfsc Banderas_Semaforos, Blink_A_S2
-    goto  Espera_Amarillo_Semaforo2 
-    Blink_Verde_Semaforo2:
-    Blink_Semaforo2 Contador_Blink, Verde
-    goto  Fin_Blink_Final_Semaforo2
-    
-    Amarillo_Semaforo2:
-    Off_Semaforo2 Verde
-    Semaforo2 Amarillo
-    bsf   Banderas_Semaforos, Blink_A_S2
-    Espera_Amarillo_Semaforo2:
-    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
-    ; del amarillo del semaforo 2
-    btfss Banderas_Semaforos, Seis_Seg
-    goto  Fin_Blink_Final_Semaforo2
-    bcf   Banderas_Semaforos, Blink_A_S2
-    bcf   Banderas_Semaforos, P_Blink
-    Off_Semaforo2 Amarillo
-    
-    ; Para este momento el tiempo de la via 2 llego a cero
-    bcf   Banderas_Estados,Estado_2
-    bsf   Banderas_Estados,Estado_3
-    bsf  Banderas_Estados,Inicio
-    bsf  Banderas_Estados,Via_3
-    Fin_Blink_Final_Semaforo2: 
-    return
-
-Blink_Final_Semaforo3:
-    ; El siguiente test es verdadero solo cuando la bandera previamente sea 
-    ; activada. Esta bandera se vuelve a apagar cuando se termina el proceso 
-    ; (seis segundos despues)  
-    
-    btfss Banderas_Semaforos, P_Blink
-    goto  Fin_Blink_Final_Semaforo3
-    ; Cuando terminan los tres segundos del blink verde, se preparara para 
-    ; el blink amarillo, esto consiste en apagar el led verde (sí llegara a 
-    ; a quedar encendido), ahi tambien se activa la vandera del blink amarillo
-    ; semaforo 2. 
-    ; Las siguiente condición solo sera evaluada una vez
-    btfsc Banderas_Semaforos, Tres_Seg     
-    goto  Amarillo_Semaforo3
-    
-    ; Se evalua la bandera del blink amarillo, si esta activada direcciona a 
-    ; la subrutina del blink amarillo, sí esta apagada direcciona a la 
-    ; subrutian del blink verde. 
-    btfsc Banderas_Semaforos, Blink_A_S3
-    goto  Espera_Amarillo_Semaforo3 
-    Blink_Verde_Semaforo3:
-    Blink_Semaforo3 Contador_Blink, Verde
-    goto  Fin_Blink_Final_Semaforo3
-    
-    Amarillo_Semaforo3:
-    Off_Semaforo3 Verde
-    Semaforo3 Amarillo
-    bsf   Banderas_Semaforos, Blink_A_S3
-    Espera_Amarillo_Semaforo3:
-    ; Cuando han pasado los 3 segundos del color amarillo se apaga la bandera 
-    ; del amarillo del semaforo 3
-    btfss Banderas_Semaforos, Seis_Seg
-    goto  Fin_Blink_Final_Semaforo3
-    bcf   Banderas_Semaforos, Blink_A_S3
-    bcf   Banderas_Semaforos, P_Blink
-    Off_Semaforo3 Amarillo
-    
-    ; Para este momento el tiempo de la via 3 llego a cero
-    bcf   Banderas_Estados,Estado_3
-    bsf   Banderas_Estados,Estado_1
-    bsf  Banderas_Estados,Inicio
-    bsf  Banderas_Estados,Via_1
-    Fin_Blink_Final_Semaforo3: 
-    return
-  
-;---------------------------------------------------------
-;----------- Encendre Displays ---------------------------
+    call    Actualizacion_Valores_Displays   
+;----------- Encender Displays ---------------------------
 Displays_7Seg:
     clrf    PORTA
-    clrf    PORTC
- 
+    btfsc   Banderas_Dis, Dis_42     ; Debe encender el display 1 vía 1
+    goto    Encender_Dis11
+    
     btfsc   Banderas_Dis, Dis_11     ; Debe encender el display 2 vía 1
     goto    Encender_Dis12
     
@@ -787,15 +427,19 @@ Displays_7Seg:
     
     btfsc   Banderas_Dis, Dis_31     ; Debe encender el display 2 vía 3
     goto    Encender_Dis32
+
+btfss Banderas1, Modo_1   ; Revisa si esta en modo_1 o en configuración
+goto  Displays_Configuraciones
+Modo_Normal: 
+bsf     Banderas_Dis, Dis_42     ; Encender bandera del display actual
+goto    loop  ; Termina el proceso y empieza con Display 1
     
+Displays_Configuraciones: 
     btfsc   Banderas_Dis, Dis_32     ; Debe encender el display 1 vía 4
     goto    Encender_Dis41
-    
+       
     btfsc   Banderas_Dis, Dis_41     ; Debe encender el display 2 vía 4
     goto    Encender_Dis42
-    
-    btfsc   Banderas_Dis, Dis_42     ; Debe encender el display 1 vía 1
-    goto    Encender_Dis11
     
     goto loop ; No debe llegar a esta parte
 
@@ -854,6 +498,7 @@ Encender_Dis32:
     bcf     Banderas_Dis, Dis_31     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_32     ; Encender bandera del display actual
     goto loop
+
 Encender_Dis41:
     movf    V_Display_41,0
     movwf   PORTA
@@ -872,50 +517,151 @@ Encender_Dis42:
     bcf     Banderas_Dis, Dis_41     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_42     ; Encender bandera del display actual
     goto loop
-
+    
+Actualizacion_Valores_Displays:
+    clrf    Decenas_Via1
+    clrf    Unidades_Via1
+    clrf    Decenas_Via2
+    clrf    Unidades_Via2
+    clrf    Decenas_Via3
+    clrf    Unidades_Via3
+    clrf    Decenas_Modo
+    clrf    Unidades_Modo
+    
+    movf    Temporizador_1,0
+    movwf   Operacion_Dis
+    ; Actualización de valores que se mostraran en los displays de la via 1
+    Decena_V1:
+	movlw   10
+	subwf   Operacion_Dis, 1
+	incf    Decenas_Via1,1
+	btfsc   CARRY
+	goto    Decena_V1
+	movlw   10
+	addwf   Operacion_Dis,1
+	decf    Decenas_Via1,1
+	
+	movf    Decenas_Via1,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_12
+    Unidades_V1:
+	movlw   1
+	subwf   Operacion_Dis, 1
+	incf    Unidades_Via1,1
+	btfsc   CARRY
+	goto    Unidades_V1
+	movlw   1
+	addwf   Operacion_Dis,1
+	decf    Unidades_Via1,1
+	
+	movf    Unidades_Via1,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_11
+    
+    ; Actualización de valores que se mostraran en los displays de la via 2
+    movf    Temporizador_2,0
+    movwf   Operacion_Dis
+    Decena_V2:
+	movlw   10
+	subwf   Operacion_Dis, 1
+	incf    Decenas_Via2,1
+	btfsc   CARRY
+	goto    Decena_V2
+	movlw   10
+	addwf   Operacion_Dis,1
+	decf    Decenas_Via2,1
+	
+	movf    Decenas_Via2,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_22
+    Unidades_V2:
+	movlw   1
+	subwf   Operacion_Dis, 1
+	incf    Unidades_Via2,1
+	btfsc   CARRY
+	goto    Unidades_V2
+	movlw   1
+	addwf   Operacion_Dis,1
+	decf    Unidades_Via2,1
+	
+	movf    Unidades_Via2,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_21
+    
+    ; Actualización de valores que se mostraran en los displays de la via 3
+    movf    Temporizador_3,0
+    movwf   Operacion_Dis
+    Decena_V3:
+	movlw   10
+	subwf   Operacion_Dis, 1
+	incf    Decenas_Via3,1
+	btfsc   CARRY
+	goto    Decena_V3
+	movlw   10
+	addwf   Operacion_Dis,1
+	decf    Decenas_Via3,1
+	
+	movf    Decenas_Via3,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_32
+    Unidades_V3:
+	movlw   1
+	subwf   Operacion_Dis, 1
+	incf    Unidades_Via3,1
+	btfsc   CARRY
+	goto    Unidades_V3
+	movlw   1
+	addwf   Operacion_Dis,1
+	decf    Unidades_Via3,1
+	
+	movf    Unidades_Via3,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_31
+	
+    ; Actualización de valores que se mostraran en los displays de Modo
+    movf    Tiempo_Modo,0
+    movwf   Operacion_Dis
+    Decena_MOdo:
+	movlw   10
+	subwf   Operacion_Dis, 1
+	incf    Decenas_Modo,1
+	btfsc   CARRY
+	goto    Decena_MOdo
+	movlw   10
+	addwf   Operacion_Dis,1
+	decf    Decenas_Modo,1
+	
+	movf    Decenas_Modo,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_42
+    Unidades_MOdo:
+	movlw   1
+	subwf   Operacion_Dis, 1
+	incf    Unidades_Modo,1
+	btfsc   CARRY
+	goto    Unidades_MOdo
+	movlw   1
+	addwf   Operacion_Dis,1
+	decf    Unidades_Modo,1
+	
+	movf    Unidades_Modo,0
+	andlw   0x0f
+	call    Display
+	movwf   V_Display_41
+	
+    
+return  ; Regresa a call de Actualizacion_Valores_Displays hecho en 
+        ; Seleccion_Display
+    
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 Revisiones_Botones:
-    /*
-    Revision_B_Modo:
-    btfss  Banderas_Botones, B_Modo
-    goto   Revision_B_Inc
-    btfss  PORTB, B_Modo
-    bcf    Banderas_Botones, B_Modo
-    Revision_B_Inc:
-    btfss  Banderas_Botones, B_Inc
-    goto   Revision_B_Dec
-    btfss  PORTB, B_Inc
-    bcf    Banderas_Botones, B_Inc
-    Revision_B_Dec:
-    btfss  Banderas_Botones, B_Dec
-    btfss  PORTB, B_Dec
-    bcf    Banderas_Botones, B_Dec    
-    */
-    ; Revisar Banderas, Si la bandera esta en 1 es porque el boton 
-    ; fue presionado
-    Boton_Modo:
-    btfss Banderas_Botones, B_Modo
-    goto  Boton_Inc
-    ; Acciones si el boton de modo esta presionado
-    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
     
-    ;bsf PORTD, 0
-    
-    ;bsf  Banderas_Semaforos, P_Blink
-    Boton_Inc:
-    btfss Banderas_Botones, B_Inc
-    goto  Boton_Dec
-    ;incf  Tiempo_Via1,1
-    
-    ; Acciones si el boton de incremento esta presionado
-    Boton_Dec:
-    btfss Banderas_Botones, B_Dec
-    goto  Fin_Revisiones_Botones
-    
-    ; Acciones si el boton de decremento esta presionado
-    Fin_Revisiones_Botones:
-    bcf   Banderas_Botones, B_Modo
-    bcf   Banderas_Botones, B_Inc
-    bcf   Banderas_Botones, B_Dec
-    return ; Regresa a loop 
-    ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+return ; Regresa a loop 
+;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
