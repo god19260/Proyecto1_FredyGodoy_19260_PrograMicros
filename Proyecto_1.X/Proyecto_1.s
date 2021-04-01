@@ -215,7 +215,7 @@ main:
     movwf    INTCON
     
     clrf     TMR0
-    movlw    246              ; n de timer0
+    movlw    250              ; n de timer0
     movwf    TMR0
     
     ;------- Puertos ---------------
@@ -289,7 +289,7 @@ main:
     nop 
     bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
     
-    bsf	  Banderas_Estados,Estado_1            ; la primera vez que entre colocara
+    bsf	  Banderas_Estados, Estado_3            ; la primera vez que entre colocara
     bsf   Banderas_Estados, Cambio_Estado   ; los tiempos correctos en cada 
                                        ;display, empezando con la via 1 en verde
 	
@@ -311,8 +311,7 @@ main:
 loop:  
     bsf Banderas1, Modo_1      ; Bandera para mostrar valores en Displays grises
     
-    call  Tiempos
-    Blink_Semaforo1 Verde
+    call    Tiempos
     call    Revisiones_Botones
     
     call    Estados
@@ -328,29 +327,38 @@ loop:
 ;----------- Elección del Estado de cada Vía ------------- 
 Estados:      ; Estados de los semaforos
     Cambio_Estado:
+	CambioDeEstado
+	
 	btfss Banderas_Estados, Cambio_Estado
 	goto Eleccion_Estado
 	; Al cambiar de estado se deben restablecer los tiempos que cada vía tiene 
 	
 	btfsc Banderas_Estados, Estado_1    ; Revisar bandera del estado 1
-	goto  TiemposParaVia_1
-	btfsc Banderas_Estados, Estado_2    ; Revisar bandera del estado 1
 	goto  TiemposParaVia_2
-	btfsc Banderas_Estados, Estado_3    ; Revisar bandera del estado 1
+	btfsc Banderas_Estados, Estado_2    ; Revisar bandera del estado 2
 	goto  TiemposParaVia_3
+	btfsc Banderas_Estados, Estado_3    ; Revisar bandera del estado 3
+	goto  TiemposParaVia_1
+	
 	TiemposParaVia_1:
 	    Tiempos_Via_1
+	    bcf Banderas_Estados, Estado_3 
+	    bsf Banderas_Estados, Estado_1 
 	    bcf Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
 	TiemposParaVia_2:
 	    Tiempos_Via_2
+	    bcf Banderas_Estados, Estado_1 
+	    bsf Banderas_Estados, Estado_2 
 	    bcf Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
 	TiemposParaVia_3:    
 	    Tiempos_Via_3
+	    bcf Banderas_Estados, Estado_2 
+	    bsf Banderas_Estados, Estado_3 
 	    bcf Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
- 
+        goto  Fin_Estados
     Eleccion_Estado:
     btfsc Banderas_Estados, Estado_1    ; Revisar bandera del estado 1
     goto  Estado1
@@ -362,10 +370,35 @@ Estados:      ; Estados de los semaforos
     goto  Estado4
     goto Fin_Estados
     Estado1:       ; Via 1 en verde
+        Dec_1Seg Temporizador_1, Un_Seg   ; Decrementos de los temporizadores
+	Dec_1Seg Temporizador_2, Un_Seg
+	Dec_1Seg Temporizador_3, Un_Seg
+	movlw 6                    ; Activación del verde titilante cuando 
+	subwf Temporizador_1, 0    ; falten 6 segundos de via
+	btfsc ZERO
+	bsf   Banderas_Semaforos, Blink
+	btfss Banderas_Semaforos, Blink
+	goto  Amarillo_1
+	Blink_Verde:
+	Blink_Semaforo1 Verde
+	Amarillo_1:
+	movlw 3                    ; Activación del color amarillo cuando 
+	subwf Temporizador_1, 0    ; falten 3 segundos de via
+	btfss ZERO
+	goto Fin_Estados
+	bcf   Banderas_Semaforos, Blink
+	Semaforo1 Amarillo
 	goto  Fin_Estados
     Estado2:       ; Vía 2 en verde
+	Dec_1Seg Temporizador_1, Un_Seg   ; Decrementos de los temporizadores
+	Dec_1Seg Temporizador_2, Un_Seg
+	Dec_1Seg Temporizador_3, Un_Seg
+	
 	goto  Fin_Estados
     Estado3:       ; Vía 3 en verde
+	Dec_1Seg Temporizador_1, Un_Seg   ; Decrementos de los temporizadores
+	Dec_1Seg Temporizador_2, Un_Seg
+	Dec_1Seg Temporizador_3, Un_Seg
 	goto  Fin_Estados
     Estado4:       ; Reseteo
     

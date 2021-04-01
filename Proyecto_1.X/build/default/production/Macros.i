@@ -117,8 +117,28 @@ Nuevo_Tiempo macro tiempo, contador
     movwf contador
 endm
 
-Dec_1Seg macro decremento
-    decf decremento,1
+Dec_1Seg macro temporizador, bandera
+    btfsc Banderas_Semaforos, bandera
+    decf temporizador,1
+endm
+
+CambioDeEstado macro
+    movlw 0
+    subwf Temporizador_1,0
+    btfsc ZERO
+    goto Cambio
+    movlw 0
+    subwf Temporizador_2,0
+    btfsc ZERO
+    goto Cambio
+    movlw 0
+    subwf Temporizador_3,0
+    btfsc ZERO
+    goto Cambio
+    goto fin_CambioDeEstado
+    Cambio:
+    bsf Banderas_Estados, 0 ; Bandera de Cambio de estado
+    fin_CambioDeEstado:
 endm
 
 Underflow macro registro
