@@ -3022,7 +3022,7 @@ Estados: ; Estados de los semaforos
  bsf Banderas_Semaforos, 0
  btfss Banderas_Semaforos, 0
  goto Amarillo_1
- Blink_Verde:
+ Blink_Verde_1:
  Blink_Semaforo1 0
  Amarillo_1:
  movlw 3 ; Activación del color amarillo cuando
@@ -3036,12 +3036,41 @@ Estados: ; Estados de los semaforos
  Dec_1Seg Temporizador_1, 1 ; Decrementos de los temporizadores
  Dec_1Seg Temporizador_2, 1
  Dec_1Seg Temporizador_3, 1
-
+ movlw 6 ; Activación del verde titilante cuando
+ subwf Temporizador_2, 0 ; falten 6 segundos de via
+ btfsc ((STATUS) and 07Fh), 2
+ bsf Banderas_Semaforos, 0
+ btfss Banderas_Semaforos, 0
+ goto Amarillo_2
+ Blink_Verde_2:
+ Blink_Semaforo2 0
+ Amarillo_2:
+ movlw 3 ; Activación del color amarillo cuando
+ subwf Temporizador_2, 0 ; falten 3 segundos de via
+ btfss ((STATUS) and 07Fh), 2
+ goto Fin_Estados
+ bcf Banderas_Semaforos, 0
+ Semaforo2 1
  goto Fin_Estados
     Estado3: ; Vía 3 en verde
  Dec_1Seg Temporizador_1, 1 ; Decrementos de los temporizadores
  Dec_1Seg Temporizador_2, 1
  Dec_1Seg Temporizador_3, 1
+ movlw 6 ; Activación del verde titilante cuando
+ subwf Temporizador_3, 0 ; falten 6 segundos de via
+ btfsc ((STATUS) and 07Fh), 2
+ bsf Banderas_Semaforos, 0
+ btfss Banderas_Semaforos, 0
+ goto Amarillo_3
+ Blink_Verde_3:
+ Blink_Semaforo3 0
+ Amarillo_3:
+ movlw 3 ; Activación del color amarillo cuando
+ subwf Temporizador_3, 0 ; falten 3 segundos de via
+ btfss ((STATUS) and 07Fh), 2
+ goto Fin_Estados
+ bcf Banderas_Semaforos, 0
+ Semaforo3 1
  goto Fin_Estados
     Estado4: ; Reseteo
 
