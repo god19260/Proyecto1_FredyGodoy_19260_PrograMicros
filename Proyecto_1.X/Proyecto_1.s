@@ -130,7 +130,6 @@ pop:
     
     RETFIE
 Interrupcion_PORTB:
-    
     ; Revisa el boton de modo
     btfss  PORTB, B_Modo
     bsf    Banderas_Botones, B_Modo
@@ -141,16 +140,6 @@ Interrupcion_PORTB:
     btfss  PORTB, B_Dec
     bsf    Banderas_Botones, B_Dec
     
-      /*
-    btfss  PORTB, B_Inc
-    E_B Contador_1Seg, Contador_3Seg, Contador_6Seg, Banderas_Semaforos, P_Blink
-    ;incf    V_Display_11,1
-    
-    btfss  PORTB, B_Dec
-    decf    V_Display_11,1
-    */
-    
-    Fin_Interrupcion_PORTB:
     bcf    RBIF
     goto   isr
     
@@ -294,17 +283,15 @@ main:
                                        ;display, empezando con la via 1 en verde
 	
     
-    movlw 10          ; El tiempo inicial de cada via es de 10 segundos
+    movlw 8          ; El tiempo inicial de cada via es de 10 segundos
     movwf Tiempo_Via1
+    movlw 8
     movwf Tiempo_Via2
+    movlw 12
     movwf Tiempo_Via3
           
-    movwf Temporizador_1
-    movwf Temporizador_2
-    movwf Temporizador_3
     ;movwf Tiempo_Modo
-    Semaforo1 Verde
-
+    
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
@@ -313,8 +300,8 @@ loop:
     
     call    Tiempos
     call    Revisiones_Botones
-    
-    call    Estados
+    call    Modos
+    ;call    Estados
     call    Apagar_Banderas_Tiempos
     btfsc   Banderas1,Dis_Multi  ; Mostrar valores en displays cada 5ms
     goto    Seleccion_Display 
@@ -322,7 +309,12 @@ loop:
     goto loop
 ;---------- Fin Loop principal ---------------------------  
 ;---------------------------------------------------------  
-
+;---------------------------------------------------------
+;-------- Elección del Modo de funcionamiento ------------ 
+Modos:
+    
+    Fin_Modos:
+return ; regresa a loop
 ;---------------------------------------------------------
 ;----------- Elección del Estado de cada Vía ------------- 
 Estados:      ; Estados de los semaforos
@@ -723,7 +715,40 @@ return  ; Regresa a call de Actualizacion_Valores_Displays hecho en
         ; Seleccion_Display
     
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-Revisiones_Botones:
-    
+Revisiones_Botones: 
+    Boton_Modo:
+	btfss Banderas_Botones, B_Modo
+	goto  Fin_Boton_Modo
+	btfss PORTB, B_Modo
+	goto  Fin_Boton_Modo
+	; Instrucciones del boton modo
+	
+	bcf Banderas_Botones, B_Modo   ; Se apagan las banderas para que haya 
+	bcf Banderas_Botones, B_Inc    ; solo una operación por boton a la vez
+	bcf Banderas_Botones, B_Dec
+	Fin_Boton_Modo:
+    Boton_Inc:
+	btfss Banderas_Botones, B_Inc
+	goto  Fin_Boton_Inc
+	btfss PORTB, B_Inc
+	goto  Fin_Boton_Inc
+	; Instrucciones del boton de incremento
+	Semaforo1 Verde
+	bcf Banderas_Botones, B_Modo   ; Se apagan las banderas para que haya 
+	bcf Banderas_Botones, B_Inc    ; solo una operación por boton a la vez
+	bcf Banderas_Botones, B_Dec
+	Fin_Boton_Inc: 
+    Boton_Dec:
+	btfss Banderas_Botones, B_Dec
+	goto  Fin_Boton_Dec
+	btfss PORTB, B_Dec
+	goto  Fin_Boton_Dec
+	; Instrucciones del boton de decremento
+	Off_Semaforo1 Verde
+	
+	bcf Banderas_Botones, B_Modo   ; Se apagan las banderas para que haya 
+	bcf Banderas_Botones, B_Inc    ; solo una operación por boton a la vez
+	bcf Banderas_Botones, B_Dec
+	Fin_Boton_Dec:  
 return ; Regresa a loop 
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
