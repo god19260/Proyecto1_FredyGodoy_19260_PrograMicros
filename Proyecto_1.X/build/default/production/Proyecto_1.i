@@ -2512,7 +2512,12 @@ Indicador_Via3 macro
     bcf PORTD, 7
     bsf PORTB, 0
 endm
-Off_Indicadores macro
+Indicador_Modo5 macro
+    bsf PORTD, 6
+    bsf PORTD, 7
+    bsf PORTB, 0
+endm
+Indicador_Modo1 macro
     bcf PORTD, 6
     bcf PORTD, 7
     bcf PORTB, 0
@@ -2983,15 +2988,8 @@ main:
     bsf Banderas1, 1 ; Banderas Modo de funcionamiento ; Bandera para mostrar valores en Displays grises
     movlw 10 ; El tiempo inicial de cada via es de 10 segundos
     movwf Tiempo_Via1
-    movlw 13
     movwf Tiempo_Via2
-    movlw 17
     movwf Tiempo_Via3
-
-    ;movwf Tiempo_Modo
-
-    ;bsf Banderas_Estados, 4
-
 
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
@@ -3047,14 +3045,16 @@ return ; regresa a loop
 ;---------------------------------------------------------
 ;----------- Elección del Estado de cada Vía -------------
 Estados: ; Estados de los semaforos
-    ; Verificar que no toque resetear
-    btfsc Banderas_Estados, 4
-    goto Estado4
+
     0:
  CambioDeEstado
 
  btfss Banderas_Estados, 0
  goto Eleccion_Estado
+ ; Verificar que no toque resetear
+ btfsc Banderas_Estados, 4
+ goto Estado4
+
  ; Al cambiar de estado se deben restablecer los tiempos que cada vía tiene
  Si_Toca_Cambiar_Estado:
  btfsc Banderas_Estados, 1 ; Revisar bandera del estado 1
@@ -3154,6 +3154,24 @@ Estados: ; Estados de los semaforos
  Semaforo3 1
  goto Fin_Estados
     Estado4: ; Reseteo
+        btfss Banderas_Estados, 5
+ goto Resetear
+ movf Tiempo_Modo2,0
+ movwf Tiempo_Via1
+ movf Tiempo_Modo3,0
+ movwf Tiempo_Via2
+ movf Tiempo_Modo4,0
+ movwf Tiempo_Via3
+ bcf Banderas_Estados, 1
+ bcf Banderas_Estados, 2
+ bcf Banderas_Estados, 3
+ bcf Banderas_Estados, 5
+ bsf Banderas_Estados, 0
+ clrf Contador_3Seg
+ clrf Contador_1Seg
+ clrf Contador_Blink
+ Off_Semaforos ; apaga todos los semaforos para prepara el reseteo
+ Resetear:
  Reseteo
  clrf Temporizador_1
  clrf Temporizador_2
@@ -3162,7 +3180,7 @@ Estados: ; Estados de los semaforos
  goto Fin_Estados
  bcf Banderas_Estados, 4
  bsf Banderas_Estados, 3
- bsf Banderas_Estados, 0
+
     Fin_Estados:
 return ; Regresa al loop principal
 
@@ -3503,7 +3521,7 @@ Revisiones_Botones:
      bcf Banderas1, 3
      goto Apagar_Banderas_B_Modo
  Activar_Modo_5:
-     Off_Indicadores
+     Indicador_Modo5
      bsf Banderas1, 5
      bcf Banderas1, 4
      goto Apagar_Banderas_B_Modo
@@ -3546,22 +3564,11 @@ Revisiones_Botones:
  Overflow Tiempo_Modo4
  goto Apagar_Banderas_B_Inc
  Guardar:
- movf Tiempo_Modo2,0
- movwf Tiempo_Via1
- movf Tiempo_Modo3,0
- movwf Tiempo_Via2
- movf Tiempo_Modo4,0
- movwf Tiempo_Via3
+ Indicador_Modo1
  bsf Banderas1, 1 ; Banderas Modo de funcionamiento
  bcf Banderas1, 5
  bsf Banderas_Estados, 4
- bcf Banderas_Estados, 1
- bcf Banderas_Estados, 2
- bcf Banderas_Estados, 3
- clrf Contador_3Seg
- clrf Contador_1Seg
- clrf Contador_Blink
- Off_Semaforos ; apaga todos los semaforos para prepara el reseteo
+ bsf Banderas_Estados, 5
  ; * * * *
  Apagar_Banderas_B_Inc:
  bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
@@ -3601,6 +3608,7 @@ Revisiones_Botones:
  Underflow Tiempo_Modo4
  goto Apagar_Banderas_B_Inc
  No_Guardar:
+ Indicador_Modo1
  ; No guarda los valores colocados en cada uno de los modos
  bsf Banderas1, 1 ; Banderas Modo de funcionamiento
  bcf Banderas1, 5

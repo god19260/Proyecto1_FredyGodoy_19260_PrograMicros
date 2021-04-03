@@ -56,12 +56,17 @@ Indicador_Via3 macro
     bcf PORTD, 7
     bsf PORTB, 0
 endm
-Off_Indicadores macro
+Indicador_Modo5 macro
+    bsf PORTD, 6
+    bsf PORTD, 7
+    bsf PORTB, 0
+endm
+Indicador_Modo1 macro
     bcf PORTD, 6
     bcf PORTD, 7
     bcf PORTB, 0
 endm
- 
+    
 Blink_Semaforo1 macro color 
     btfss Banderas_Semaforos, 2       ; Revisa Bandera de Medio Segundo
     goto Fin_Blink_Semaforo1
