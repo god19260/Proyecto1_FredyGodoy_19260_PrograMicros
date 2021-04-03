@@ -2485,6 +2485,38 @@ endm
 Off_Semaforo3 macro color
     bcf PORTE, color
 endm
+Off_Semaforos macro
+    bcf PORTD, 0 ; Apaga leds semaforo vía 1
+    bcf PORTD, 1
+    bcf PORTD, 2
+    bcf PORTD, 3 ; Apaga leds semaforo vía 2
+    bcf PORTD, 4
+    bcf PORTD, 5
+    bcf PORTE, 0 ; Apaga leds semaforo vía 3
+    bcf PORTE, 1
+    bcf PORTE, 2
+endm
+
+Indicador_Via1 macro
+    bcf PORTD, 7
+    bcf PORTB, 0
+    bsf PORTD, 6
+endm
+Indicador_Via2 macro
+    bcf PORTD, 6
+    bcf PORTB, 0
+    bsf PORTD, 7
+endm
+Indicador_Via3 macro
+    bcf PORTD, 6
+    bcf PORTD, 7
+    bsf PORTB, 0
+endm
+Off_Indicadores macro
+    bcf PORTD, 6
+    bcf PORTD, 7
+    bcf PORTB, 0
+endm
 
 Blink_Semaforo1 macro color
     btfss Banderas_Semaforos, 2 ; Revisa Bandera de Medio Segundo
@@ -2695,9 +2727,12 @@ PSECT udata_bank0
     Banderas1: DS 1
 
 
-                             ; display
+
+
+
 
     Banderas_Semaforos: DS 1
+
 
 
 
@@ -2710,7 +2745,7 @@ PSECT udata_bank0
 
 
     Banderas_Dis: DS 1
-# 62 "Proyecto_1.s"
+# 65 "Proyecto_1.s"
     Tiempo_Modo: DS 1
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
@@ -2728,6 +2763,7 @@ PSECT udata_bank0
     Contador_Blink: DS 1
     Contador_1Seg: DS 1
     Contador_General: DS 1
+    Contador_3Seg: DS 1
 
     Temporizador_1: DS 1
     Temporizador_2: DS 1
@@ -2736,6 +2772,10 @@ PSECT udata_bank0
     Tiempo_Via1: DS 1
     Tiempo_Via2: DS 1
     Tiempo_Via3: DS 1
+
+    Tiempo_Modo2: DS 1
+    Tiempo_Modo3: DS 1
+    Tiempo_Modo4: DS 1
 
     Decenas_Via1: DS 1
     Unidades_Via1: DS 1
@@ -2816,22 +2856,22 @@ Display:
     bsf PCLATH,0
     andlw 0x0F
     addwf PCL
-    retlw 00111111B ; Cero
-    retlw 00000110B ;Uno
-    retlw 01011011B ;Dos
-    retlw 01001111B ;Tres
-    retlw 01100110B ;Cuatro
-    retlw 01101101B ;Cinco
-    retlw 01111101B ;Seis
-    retlw 00000111B ;Siete
-    retlw 01111111B ;Ocho
-    retlw 01100111B ;Nueve
-    retlw 01110111B ;A
-    retlw 01111100B ;B
-    retlw 00111001B ;C
-    retlw 01011110B ;D
-    retlw 01111001B ;E
-    retlw 01110001B ;F
+    retlw 0111111B ; Cero
+    retlw 0000110B ;Uno
+    retlw 1011011B ;Dos
+    retlw 1001111B ;Tres
+    retlw 1100110B ;Cuatro
+    retlw 1101101B ;Cinco
+    retlw 1111101B ;Seis
+    retlw 0000111B ;Siete
+    retlw 1111111B ;Ocho
+    retlw 1100111B ;Nueve
+    retlw 1110111B ;A
+    retlw 1111100B ;B
+    retlw 0111001B ;C
+    retlw 1011110B ;D
+    retlw 1111001B ;E
+    retlw 1110001B ;F
 
 ;---------------------------------------------------------
 ;------------ Main ---------------------------------------
@@ -2868,10 +2908,12 @@ main:
     movlw 00000000B ; PORTA Todos los pines como salidas
     movwf TRISA
 
+    bcf TRISB,0
+
     movlw 00000000B ; PORTC Todos los pines como salidas
     movwf TRISC
 
-    movlw 11000000B ; PORTD los pines 0-2 como salidas, 3-7 como entradas
+    movlw 00000000B ; PORTD los pines 0-2 como salidas, 3-7 como entradas
     movwf TRISD
 
     movlw 00000000B ; PORTE Todos los pines como salidas
@@ -2909,12 +2951,16 @@ main:
     clrf V_Display_42
     clrf Contador_Blink
     clrf Contador_1Seg
+    clrf Contador_3Seg
     clrf Temporizador_1
     clrf Temporizador_2
     clrf Temporizador_3
     clrf Tiempo_Via1
     clrf Tiempo_Via2
     clrf Tiempo_Via3
+    clrf Tiempo_Modo2
+    clrf Tiempo_Modo3
+    clrf Tiempo_Modo4
     clrf Contador_General
     clrf Decenas_Via1
     clrf Unidades_Via1
@@ -2934,27 +2980,29 @@ main:
     bsf Banderas_Estados, 0 ; los tiempos correctos en cada
                                        ;display, empezando con la via 1 en verde
 
-
-    movlw 8 ; El tiempo inicial de cada via es de 10 segundos
+    bsf Banderas1, 1 ; Banderas Modo de funcionamiento ; Bandera para mostrar valores en Displays grises
+    movlw 10 ; El tiempo inicial de cada via es de 10 segundos
     movwf Tiempo_Via1
-    movlw 8
+    movlw 13
     movwf Tiempo_Via2
-    movlw 12
+    movlw 17
     movwf Tiempo_Via3
 
     ;movwf Tiempo_Modo
+
+    ;bsf Banderas_Estados, 4
+
 
 ;---------------------------------------------------------
 ;----------- Loop Forever --------------------------------
 ;---------------------------------------------------------
 loop:
-    bsf Banderas1, 1 ; Bandera que indica el on/off de los ultimos ; Bandera para mostrar valores en Displays grises
-
     call Tiempos
     call Revisiones_Botones
     call Modos
-    ;call Estados
+    call Estados
     call Apagar_Banderas_Tiempos
+
     btfsc Banderas1,0 ; Bandera de multiplexión de displays ; Mostrar valores en displays cada 5ms
     goto Seleccion_Display
 
@@ -2964,19 +3012,51 @@ loop:
 ;---------------------------------------------------------
 ;-------- Elección del Modo de funcionamiento ------------
 Modos:
-
+    btfsc Banderas1, 1 ; Banderas Modo de funcionamiento
+    goto Modo1
+    btfsc Banderas1, 2
+    goto Modo2
+    btfsc Banderas1, 3
+    goto Modo3
+    btfsc Banderas1, 4
+    goto Modo4
+    btfsc Banderas1, 5
+    goto Modo5
+    goto Fin_Modos
+    Modo1:
+    ; Funcionamiento Normal
+    goto Fin_Modos
+    Modo2:
+    movf Tiempo_Modo2,0
+    movwf Tiempo_Modo
+    goto Fin_Modos
+    Modo3:
+    movf Tiempo_Modo3,0
+    movwf Tiempo_Modo
+    goto Fin_Modos
+    Modo4:
+    movf Tiempo_Modo4,0
+    movwf Tiempo_Modo
+    goto Fin_Modos
+    Modo5:
+    movlw 1B
+    movwf Tiempo_Modo
+    goto Fin_Modos
     Fin_Modos:
 return ; regresa a loop
 ;---------------------------------------------------------
 ;----------- Elección del Estado de cada Vía -------------
 Estados: ; Estados de los semaforos
+    ; Verificar que no toque resetear
+    btfsc Banderas_Estados, 4
+    goto Estado4
     0:
  CambioDeEstado
 
  btfss Banderas_Estados, 0
  goto Eleccion_Estado
  ; Al cambiar de estado se deben restablecer los tiempos que cada vía tiene
-
+ Si_Toca_Cambiar_Estado:
  btfsc Banderas_Estados, 1 ; Revisar bandera del estado 1
  goto TiemposParaVia_2
  btfsc Banderas_Estados, 2 ; Revisar bandera del estado 2
@@ -3074,7 +3154,15 @@ Estados: ; Estados de los semaforos
  Semaforo3 1
  goto Fin_Estados
     Estado4: ; Reseteo
-
+ Reseteo
+ clrf Temporizador_1
+ clrf Temporizador_2
+ clrf Temporizador_3
+ btfss Banderas_Semaforos, 3
+ goto Fin_Estados
+ bcf Banderas_Estados, 4
+ bsf Banderas_Estados, 3
+ bsf Banderas_Estados, 0
     Fin_Estados:
 return ; Regresa al loop principal
 
@@ -3082,6 +3170,7 @@ return ; Regresa al loop principal
 ;----------- Apagar Las banderas de los tiempos ----------
 Apagar_Banderas_Tiempos:
     bcf Banderas_Semaforos, 1
+    bcf Banderas_Semaforos, 3
     bcf Banderas_Semaforos, 2
 return
 
@@ -3097,14 +3186,22 @@ Tiempos:
  clrf Contador_1Seg
 
 
-    Medio_Segundo:
+    Medio_Segundo: ; para blink
  movlw 100
  subwf Contador_Blink,W
  btfss ((STATUS) and 07Fh), 2
- goto Fin_Tiempos
+ goto Tres_Segundos
  bsf Banderas_Semaforos, 2
  clrf Contador_Blink
-
+    Tres_Segundos: ; Para reseteo
+ btfsc Banderas_Semaforos, 1
+ incf Contador_3Seg,1
+ movlw 3
+ subwf Contador_3Seg,W
+ btfss ((STATUS) and 07Fh), 2
+ goto Fin_Tiempos
+ bsf Banderas_Semaforos, 3
+ clrf Contador_3Seg
     Fin_Tiempos:
     return ; Regresa al call de Tiempos en loop
 
@@ -3134,11 +3231,11 @@ Displays_7Seg:
     btfsc Banderas_Dis, 4 ; Debe encender el display 2 vía 3
     goto Encender_Dis32
 
-btfss Banderas1, 1 ; Bandera que indica el on/off de los ultimos ; Revisa si esta en modo_1 o en configuración
-goto Displays_Configuraciones
-Modo_Normal:
-bsf Banderas_Dis, 7 ; Encender bandera del display actual
-goto loop ; Termina el proceso y empieza con Display 1
+    btfss Banderas1, 1 ; Banderas Modo de funcionamiento ; Revisa si esta en modo_1 o en configuración
+    goto Displays_Configuraciones
+    Modo_Normal:
+    bsf Banderas_Dis, 7 ; Encender bandera del display actual
+    goto loop ; Termina el proceso y empieza con Display 1
 
 Displays_Configuraciones:
     btfsc Banderas_Dis, 5 ; Debe encender el display 1 vía 4
@@ -3374,30 +3471,142 @@ Revisiones_Botones:
  btfss PORTB, 5 ; pines puerto B, Modo, Incremento y Decremento
  goto Fin_Boton_Modo
  ; Instrucciones del boton modo
+ btfsc Banderas1, 1 ; Banderas Modo de funcionamiento
+ goto Activar_Modo_2
+ btfsc Banderas1, 2
+ goto Activar_Modo_3
+ btfsc Banderas1, 3
+ goto Activar_Modo_4
+ btfsc Banderas1, 4
+ goto Activar_Modo_5
+ goto Apagar_Banderas_B_Modo
 
+ Activar_Modo_2: ; Modo que actualiza tiempo de Via 1
+     Indicador_Via1
+     movf Tiempo_Via1,0 ; Se coloca el valor del tiempo actual de la vía
+     movwf Tiempo_Modo2 ; 1 en la variable que se trabaja en modo 2
+     bsf Banderas1, 2
+     bcf Banderas1, 1 ; Banderas Modo de funcionamiento
+     goto Apagar_Banderas_B_Modo
+ Activar_Modo_3: ; Modo que actualiza tiempo de Via 2
+     Indicador_Via2
+     movf Tiempo_Via2,0 ; Se coloca el valor del tiempo actual de la vía
+     movwf Tiempo_Modo3 ; 2 en la variable que se trabaja en modo 3
+     bsf Banderas1, 3
+     bcf Banderas1, 2
+     goto Apagar_Banderas_B_Modo
+ Activar_Modo_4: ; Modo que actualiza tiempo de Via 3
+     Indicador_Via3
+     movf Tiempo_Via3,0 ; Se coloca el valor del tiempo actual de la vía
+     movwf Tiempo_Modo4 ; 3 en la variable que se trabaja en modo 4
+     bsf Banderas1, 4
+     bcf Banderas1, 3
+     goto Apagar_Banderas_B_Modo
+ Activar_Modo_5:
+     Off_Indicadores
+     bsf Banderas1, 5
+     bcf Banderas1, 4
+     goto Apagar_Banderas_B_Modo
+ ; * * * *
+ Apagar_Banderas_B_Modo:
  bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
  bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
  bcf Banderas_Botones, 7
  Fin_Boton_Modo:
+
     Boton_Inc:
  btfss Banderas_Botones, 6
  goto Fin_Boton_Inc
  btfss PORTB, 6
  goto Fin_Boton_Inc
  ; Instrucciones del boton de incremento
- Semaforo1 0
+ btfsc Banderas1, 2
+ goto Inc_Modo2
+
+ btfsc Banderas1, 3
+ goto Inc_Modo3
+
+ btfsc Banderas1, 4
+ goto Inc_Modo4
+
+ btfsc Banderas1, 5
+ goto Guardar
+ goto Apagar_Banderas_B_Inc
+
+ Inc_Modo2:
+ incf Tiempo_Modo2,1
+ Overflow Tiempo_Modo2
+ goto Apagar_Banderas_B_Inc
+ Inc_Modo3:
+ incf Tiempo_Modo3,1
+ Overflow Tiempo_Modo3
+ goto Apagar_Banderas_B_Inc
+ Inc_Modo4:
+ incf Tiempo_Modo4,1
+ Overflow Tiempo_Modo4
+ goto Apagar_Banderas_B_Inc
+ Guardar:
+ movf Tiempo_Modo2,0
+ movwf Tiempo_Via1
+ movf Tiempo_Modo3,0
+ movwf Tiempo_Via2
+ movf Tiempo_Modo4,0
+ movwf Tiempo_Via3
+ bsf Banderas1, 1 ; Banderas Modo de funcionamiento
+ bcf Banderas1, 5
+ bsf Banderas_Estados, 4
+ bcf Banderas_Estados, 1
+ bcf Banderas_Estados, 2
+ bcf Banderas_Estados, 3
+ clrf Contador_3Seg
+ clrf Contador_1Seg
+ clrf Contador_Blink
+ Off_Semaforos ; apaga todos los semaforos para prepara el reseteo
+ ; * * * *
+ Apagar_Banderas_B_Inc:
  bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
  bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
  bcf Banderas_Botones, 7
  Fin_Boton_Inc:
+
     Boton_Dec:
  btfss Banderas_Botones, 7
  goto Fin_Boton_Dec
  btfss PORTB, 7
  goto Fin_Boton_Dec
  ; Instrucciones del boton de decremento
- Off_Semaforo1 0
+ btfsc Banderas1, 2
+ goto Dec_Modo2
 
+ btfsc Banderas1, 3
+ goto Dec_Modo3
+
+ btfsc Banderas1, 4
+ goto Dec_Modo4
+
+ btfsc Banderas1, 5
+ goto No_Guardar
+ goto Apagar_Banderas_B_Inc
+
+ Dec_Modo2:
+ Decf Tiempo_Modo2,1
+ Underflow Tiempo_Modo2
+ goto Apagar_Banderas_B_Inc
+ Dec_Modo3:
+ Decf Tiempo_Modo3,1
+ Underflow Tiempo_Modo3
+ goto Apagar_Banderas_B_Inc
+ Dec_Modo4:
+ decf Tiempo_Modo4,1
+ Underflow Tiempo_Modo4
+ goto Apagar_Banderas_B_Inc
+ No_Guardar:
+ ; No guarda los valores colocados en cada uno de los modos
+ bsf Banderas1, 1 ; Banderas Modo de funcionamiento
+ bcf Banderas1, 5
+ ; * * * * * * * */
+
+ Apagar_Banderas_B_Dec:
  bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
  bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
  bcf Banderas_Botones, 7

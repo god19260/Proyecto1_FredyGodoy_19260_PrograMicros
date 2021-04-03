@@ -32,6 +32,38 @@ endm
 Off_Semaforo3 macro color
     bcf PORTE, color
 endm
+Off_Semaforos macro
+    bcf PORTD, 0 ; Apaga leds semaforo vía 1
+    bcf PORTD, 1
+    bcf PORTD, 2
+    bcf PORTD, 3 ; Apaga leds semaforo vía 2
+    bcf PORTD, 4
+    bcf PORTD, 5
+    bcf PORTE, 0 ; Apaga leds semaforo vía 3
+    bcf PORTE, 1
+    bcf PORTE, 2
+endm
+
+Indicador_Via1 macro
+    bcf PORTD, 7
+    bcf PORTB, 0
+    bsf PORTD, 6
+endm
+Indicador_Via2 macro
+    bcf PORTD, 6
+    bcf PORTB, 0
+    bsf PORTD, 7
+endm
+Indicador_Via3 macro
+    bcf PORTD, 6
+    bcf PORTD, 7
+    bsf PORTB, 0
+endm
+Off_Indicadores macro
+    bcf PORTD, 6
+    bcf PORTD, 7
+    bcf PORTB, 0
+endm
 
 Blink_Semaforo1 macro color
     btfss Banderas_Semaforos, 2 ; Revisa Bandera de Medio Segundo
