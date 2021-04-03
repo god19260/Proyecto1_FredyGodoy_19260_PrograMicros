@@ -3037,7 +3037,7 @@ Modos:
     movwf Tiempo_Modo
     goto Fin_Modos
     Modo5:
-    movlw 1B
+    movlw 0
     movwf Tiempo_Modo
     goto Fin_Modos
     Fin_Modos:
@@ -3110,6 +3110,8 @@ Estados: ; Estados de los semaforos
  subwf Temporizador_1, 0 ; falten 3 segundos de via
  btfss ((STATUS) and 07Fh), 2
  goto Fin_Estados
+ btfss Banderas_Semaforos, 0
+ goto Fin_Estados
  bcf Banderas_Semaforos, 0
  Semaforo1 1
  goto Fin_Estados
@@ -3130,6 +3132,8 @@ Estados: ; Estados de los semaforos
  subwf Temporizador_2, 0 ; falten 3 segundos de via
  btfss ((STATUS) and 07Fh), 2
  goto Fin_Estados
+ btfss Banderas_Semaforos, 0
+ goto Fin_Estados
  bcf Banderas_Semaforos, 0
  Semaforo2 1
  goto Fin_Estados
@@ -3149,6 +3153,8 @@ Estados: ; Estados de los semaforos
  movlw 3 ; Activación del color amarillo cuando
  subwf Temporizador_3, 0 ; falten 3 segundos de via
  btfss ((STATUS) and 07Fh), 2
+ goto Fin_Estados
+ btfss Banderas_Semaforos, 0
  goto Fin_Estados
  bcf Banderas_Semaforos, 0
  Semaforo3 1

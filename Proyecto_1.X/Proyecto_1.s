@@ -348,7 +348,7 @@ Modos:
     movwf Tiempo_Modo
     goto Fin_Modos
     Modo5:
-    movlw 1B
+    movlw 0
     movwf Tiempo_Modo
     goto Fin_Modos
     Fin_Modos:
@@ -421,6 +421,8 @@ Estados:      ; Estados de los semaforos
 	subwf Temporizador_1, 0    ; falten 3 segundos de via
 	btfss ZERO
 	goto Fin_Estados
+	btfss Banderas_Semaforos, Blink
+	goto  Fin_Estados
 	bcf   Banderas_Semaforos, Blink
 	Semaforo1 Amarillo
 	goto  Fin_Estados
@@ -441,6 +443,8 @@ Estados:      ; Estados de los semaforos
 	subwf Temporizador_2, 0    ; falten 3 segundos de via
 	btfss ZERO
 	goto Fin_Estados
+	btfss Banderas_Semaforos, Blink
+	goto  Fin_Estados
 	bcf   Banderas_Semaforos, Blink
 	Semaforo2 Amarillo
 	goto  Fin_Estados
@@ -461,6 +465,8 @@ Estados:      ; Estados de los semaforos
 	subwf Temporizador_3, 0    ; falten 3 segundos de via
 	btfss ZERO
 	goto Fin_Estados
+	btfss Banderas_Semaforos, Blink
+	goto  Fin_Estados
 	bcf   Banderas_Semaforos, Blink
 	Semaforo3 Amarillo
 	goto  Fin_Estados
