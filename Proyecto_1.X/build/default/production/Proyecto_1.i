@@ -2588,12 +2588,12 @@ Reseteo macro
     btfss PORTE, 2
     goto Encender_Reseteo
 
-    Apagar_Reseteo:
+    Apagar_Reseteo: ; Apaga las leds Rojas de cada vía
  bcf PORTD, 2
  bcf PORTD, 2+3
  bcf PORTE, 2
  goto Fin_Reseteo
-    Encender_Reseteo:
+    Encender_Reseteo: ; Enciende las leds Rojas de cada vía
  bsf PORTD, 2
  bsf PORTD, 2+3
  bsf PORTE, 2
@@ -2644,54 +2644,54 @@ endm
 
 ; Restablecer los tiempos dependiendo de la vía
 Tiempos_Via_1 macro
- Off_Semaforo1 2 ;Rojo ; Apagamos el led Rojo en el semaforo 1
- Semaforo1 0 ;Verde ; Encendemos el led Verde en el semaforo 1
- Semaforo2 2 ;Rojo ; Encender el color rojo en los semaforos 2 y 3
- Semaforo3 2 ;Rojo
+    Off_Semaforo1 2 ;Rojo ; Apagamos el led Rojo en el semaforo 1
+    Semaforo1 0 ;Verde ; Encendemos el led Verde en el semaforo 1
+    Semaforo2 2 ;Rojo ; Encender el color rojo en los semaforos 2 y 3
+    Semaforo3 2 ;Rojo
 
- movf Tiempo_Via1, 0 ; Actualización del tiempo de Via 1, corresponde al
- movwf Temporizador_1 ; tiempo en el que lleva la vía
+    movf Tiempo_Via1, 0 ; Actualización del tiempo de Via 1, corresponde al
+    movwf Temporizador_1 ; tiempo en el que lleva la vía
 
- movf Tiempo_Via1, 0 ; Actualización del tiempo de Via 2, corresponde al
- movwf Temporizador_2 ; Corresponde al tiempo que estara en rojo
+    movf Tiempo_Via1, 0 ; Actualización del tiempo de Via 2, corresponde al
+    movwf Temporizador_2 ; Corresponde al tiempo que estara en rojo
 
- movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 3, corresponde al
- addwf Tiempo_Via1,0 ; Corresponde al tiempo que estara en rojo
- movwf Temporizador_3
+    movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 3, corresponde al
+    addwf Tiempo_Via1,0 ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_3
 endm
 
 Tiempos_Via_2 macro
-        Off_Semaforo2 2 ;Rojo ; Apagamos el led Rojo en el semaforo 2
- Semaforo2 0 ;Verde ; Encendemos el led Verde en el semaforo 2
-        Semaforo1 2 ;Rojo ; Encender el color rojo en los semaforos 1 y 3
- Semaforo3 2 ;Rojo
+    Off_Semaforo2 2 ;Rojo ; Apagamos el led Rojo en el semaforo 2
+    Semaforo2 0 ;Verde ; Encendemos el led Verde en el semaforo 2
+    Semaforo1 2 ;Rojo ; Encender el color rojo en los semaforos 1 y 3
+    Semaforo3 2 ;Rojo
 
- movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 1, corresponde al
- addwf Tiempo_Via3, 0 ; Corresponde al tiempo que estara en rojo
- movwf Temporizador_1
+    movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 1, corresponde al
+    addwf Tiempo_Via3, 0 ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_1
 
- movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 2, corresponde al
- movwf Temporizador_2 ; tiempo en el que lleva la vía
+    movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 2, corresponde al
+    movwf Temporizador_2 ; tiempo en el que lleva la vía
 
- movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 3, corresponde al
- movwf Temporizador_3 ; Corresponde al tiempo que estara en rojo
+    movf Tiempo_Via2, 0 ; Actualización del tiempo de Via 3, corresponde al
+    movwf Temporizador_3 ; Corresponde al tiempo que estara en rojo
 endm
 
 Tiempos_Via_3 macro
- Off_Semaforo3 2 ;Rojo ; Apagamos el led Rojo en el semaforo 3
- Semaforo3 0 ;Verde ; Encendemos el led Verde en el semaforo 3
- Semaforo1 2 ;Rojo ; Encender el color rojo en los semaforos 1 y 2
- Semaforo2 2 ;Rojo
+    Off_Semaforo3 2 ;Rojo ; Apagamos el led Rojo en el semaforo 3
+    Semaforo3 0 ;Verde ; Encendemos el led Verde en el semaforo 3
+    Semaforo1 2 ;Rojo ; Encender el color rojo en los semaforos 1 y 2
+    Semaforo2 2 ;Rojo
 
- movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 1, corresponde al
- movwf Temporizador_1 ; tiempo en el que lleva la vía
+    movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 1, corresponde al
+    movwf Temporizador_1 ; tiempo en el que lleva la vía
 
- movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 2, corresponde al
- addwf Tiempo_Via1, 0 ; Corresponde al tiempo que estara en rojo
- movwf Temporizador_2
+    movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 2, corresponde al
+    addwf Tiempo_Via1, 0 ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_2
 
- movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 3, corresponde al
- movwf Temporizador_3 ; Corresponde al tiempo que estara en rojo
+    movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 3, corresponde al
+    movwf Temporizador_3 ; Corresponde al tiempo que estara en rojo
 endm
 # 8 "Proyecto_1.s" 2
  ; CONFIG1
@@ -2976,9 +2976,10 @@ main:
 
     bsf Banderas_Estados, 3 ; la primera vez que entre colocara
     bsf Banderas_Estados, 0 ; los tiempos correctos en cada
-                                       ;display, empezando con la via 1 en verde
+                                            ; display, empezando con la via 1
+         ; en verde
 
-    bsf Banderas1, 1 ; Banderas Modo de funcionamiento ; Bandera para mostrar valores en Displays grises
+    bsf Banderas1, 1 ; Banderas Modo de funcionamiento ; Bandera activada para comenzar en el modo 1
 
     movlw 10 ; El tiempo inicial de cada via es de 10 segundos
     movwf Tiempo_Via1
@@ -2986,7 +2987,7 @@ main:
     movwf Tiempo_Via3
 
 ;---------------------------------------------------------
-;----------- Loop Forever --------------------------------
+;------------------- Loop Forever -----------------------
 ;---------------------------------------------------------
 loop:
     call Tiempos
@@ -2998,10 +2999,11 @@ loop:
     btfsc Banderas1,0 ; Bandera de multiplexión de displays ; Mostrar valores en displays cada 5ms
     goto Seleccion_Display
     goto loop
-;---------- Fin Loop principal ---------------------------
+;---------------- Fin Loop principal ---------------------
 ;---------------------------------------------------------
+;*********************************************************
 ;---------------------------------------------------------
-;-------- Elección del Modo de funcionamiento ------------
+;--------- Elección del Modo de funcionamiento -----------
 Modos:
     btfsc Banderas1, 1 ; Banderas Modo de funcionamiento
     goto Modo1
@@ -3082,8 +3084,6 @@ Estados: ; Estados de los semaforos
  goto Estado2
  btfsc Banderas_Estados, 3 ; Revisar bandera del estado 3
  goto Estado3
- btfsc Banderas_Estados, 4 ; Revisar bandera del estado 4
- goto Estado4
  goto Fin_Estados
     Estado1: ; Via 1 en verde
         Dec_1Seg Temporizador_1, 1 ; Decrementos de los temporizadores
@@ -3174,9 +3174,9 @@ Estados: ; Estados de los semaforos
      clrf Temporizador_1
      clrf Temporizador_2
      clrf Temporizador_3
-     btfss Banderas_Semaforos, 3
-     goto Fin_Estados
-     bcf Banderas_Estados, 4
+     btfss Banderas_Semaforos, 3 ; Cuando se cumplen 3 segundos
+     goto Fin_Estados ; de reseteo cambia de estado
+     bcf Banderas_Estados, 4 ;
      bsf Banderas_Estados, 3
     Fin_Estados:
 return ; Regresa al loop principal
@@ -3258,7 +3258,7 @@ Displays_7Seg:
 
     goto loop ; No debe llegar a esta parte
 
-;----------- Subrutinas Especificas de cada Display
+;-------- Subrutinas Especificas de cada Display ---------
 Encender_Dis11:
     movf V_Display_11,0
     movwf PORTA
@@ -3480,6 +3480,7 @@ Revisiones_Botones:
  goto Fin_Boton_Modo
  btfss PORTB, 5 ; pines puerto B, Modo, Incremento y Decremento
  goto Fin_Boton_Modo
+ ; * * * * * * * * * *
  ; Instrucciones del boton modo
  btfsc Banderas1, 1 ; Banderas Modo de funcionamiento
  goto Activar_Modo_2
@@ -3517,7 +3518,7 @@ Revisiones_Botones:
      bsf Banderas1, 5
      bcf Banderas1, 4
      goto Apagar_Banderas_B_Modo
- ; * * * *
+ ; * * * * * * * * * *
  Apagar_Banderas_B_Modo:
      bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
      bcf Banderas_Botones, 6 ; haya solo una operación por boton
@@ -3529,6 +3530,7 @@ Revisiones_Botones:
  goto Fin_Boton_Inc
  btfss PORTB, 6
  goto Fin_Boton_Inc
+ ; * * * * * * * * * *
  ; Instrucciones del boton de incremento
  btfsc Banderas1, 2
  goto Inc_Modo2
@@ -3561,7 +3563,7 @@ Revisiones_Botones:
      bcf Banderas1, 5
      bsf Banderas_Estados, 4
      bsf Banderas_Estados, 5
- ; * * * *
+ ; * * * * * * * * * *
  Apagar_Banderas_B_Inc:
      bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
      bcf Banderas_Botones, 6 ; haya solo una operación por boton
@@ -3573,6 +3575,7 @@ Revisiones_Botones:
  goto Fin_Boton_Dec
  btfss PORTB, 7
  goto Fin_Boton_Dec
+ ; * * * * * * * * * *
  ; Instrucciones del boton de decremento
  btfsc Banderas1, 2
  goto Dec_Modo2
@@ -3604,8 +3607,7 @@ Revisiones_Botones:
      ; No guarda los valores colocados en cada uno de los modos
      bsf Banderas1, 1 ; Banderas Modo de funcionamiento
      bcf Banderas1, 5
- ; * * * * * * * */
-
+ ; * * * * * * * * * *
  Apagar_Banderas_B_Dec:
      bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
      bcf Banderas_Botones, 6 ; haya solo una operación por boton

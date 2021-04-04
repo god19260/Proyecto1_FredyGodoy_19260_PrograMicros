@@ -132,12 +132,12 @@ Reseteo macro
     btfss PORTE, 2
     goto  Encender_Reseteo
     
-    Apagar_Reseteo:
+    Apagar_Reseteo:          ; Apaga las leds Rojas de cada vía
 	bcf   PORTD, 2
 	bcf   PORTD, 2+3
 	bcf   PORTE, 2
 	goto  Fin_Reseteo
-    Encender_Reseteo:
+    Encender_Reseteo:        ; Enciende las leds Rojas de cada vía
 	bsf   PORTD, 2
 	bsf   PORTD, 2+3
 	bsf   PORTE, 2
@@ -188,53 +188,53 @@ endm
     
 ; Restablecer los tiempos dependiendo de la vía 
 Tiempos_Via_1 macro 
-	Off_Semaforo1 2 ;Rojo    ; Apagamos el led Rojo en el semaforo 1
-	Semaforo1 0 ;Verde       ; Encendemos el led Verde en el semaforo 1
-	Semaforo2 2 ;Rojo        ; Encender el color rojo en los semaforos 2 y 3
-	Semaforo3 2 ;Rojo
-	
-	movf  Tiempo_Via1, 0   ; Actualización del tiempo de Via 1, corresponde al 
-	movwf Temporizador_1       ; tiempo en el que lleva la vía
+    Off_Semaforo1 2 ;Rojo  ; Apagamos el led Rojo en el semaforo 1
+    Semaforo1 0     ;Verde ; Encendemos el led Verde en el semaforo 1
+    Semaforo2 2     ;Rojo  ; Encender el color rojo en los semaforos 2 y 3
+    Semaforo3 2     ;Rojo
 
-	movf  Tiempo_Via1, 0   ; Actualización del tiempo de Via 2, corresponde al
-	movwf Temporizador_2       ; Corresponde al tiempo que estara en rojo
+    movf  Tiempo_Via1, 0   ; Actualización del tiempo de Via 1, corresponde al 
+    movwf Temporizador_1   ; tiempo en el que lleva la vía
 
-	movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 3, corresponde al
-	addwf Tiempo_Via1,0    ; Corresponde al tiempo que estara en rojo
-	movwf Temporizador_3
+    movf  Tiempo_Via1, 0   ; Actualización del tiempo de Via 2, corresponde al
+    movwf Temporizador_2   ; Corresponde al tiempo que estara en rojo
+
+    movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 3, corresponde al
+    addwf Tiempo_Via1,0    ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_3
 endm
 	
 Tiempos_Via_2 macro         
-        Off_Semaforo2 2 ;Rojo      ; Apagamos el led Rojo en el semaforo 2
-	Semaforo2 0 ;Verde         ; Encendemos el led Verde en el semaforo 2
-        Semaforo1 2 ;Rojo          ; Encender el color rojo en los semaforos 1 y 3
-	Semaforo3 2 ;Rojo
-	
-	movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 1, corresponde al
-	addwf Tiempo_Via3, 0   ; Corresponde al tiempo que estara en rojo
-	movwf Temporizador_1
+    Off_Semaforo2 2 ;Rojo  ; Apagamos el led Rojo en el semaforo 2
+    Semaforo2 0     ;Verde ; Encendemos el led Verde en el semaforo 2
+    Semaforo1 2     ;Rojo  ; Encender el color rojo en los semaforos 1 y 3
+    Semaforo3 2     ;Rojo
 
-	movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 2, corresponde al 
-	movwf Temporizador_2       ; tiempo en el que lleva la vía
+    movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 1, corresponde al
+    addwf Tiempo_Via3, 0   ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_1
 
-	movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 3, corresponde al
-	movwf Temporizador_3       ; Corresponde al tiempo que estara en rojo
+    movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 2, corresponde al 
+    movwf Temporizador_2   ; tiempo en el que lleva la vía
+
+    movf  Tiempo_Via2, 0   ; Actualización del tiempo de Via 3, corresponde al
+    movwf Temporizador_3   ; Corresponde al tiempo que estara en rojo
 endm
 	
 Tiempos_Via_3 macro 	
-	Off_Semaforo3 2 ;Rojo      ; Apagamos el led Rojo en el semaforo 3
-	Semaforo3 0 ;Verde         ; Encendemos el led Verde en el semaforo 3
-	Semaforo1 2 ;Rojo          ; Encender el color rojo en los semaforos 1 y 2 
-	Semaforo2 2 ;Rojo
+    Off_Semaforo3 2 ;Rojo  ; Apagamos el led Rojo en el semaforo 3
+    Semaforo3 0     ;Verde ; Encendemos el led Verde en el semaforo 3
+    Semaforo1 2     ;Rojo  ; Encender el color rojo en los semaforos 1 y 2 
+    Semaforo2 2     ;Rojo
 
-	movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 1, corresponde al 
-	movwf Temporizador_1       ; tiempo en el que lleva la vía
+    movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 1, corresponde al 
+    movwf Temporizador_1   ; tiempo en el que lleva la vía
 
-	movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 2, corresponde al
-	addwf Tiempo_Via1, 0   ; Corresponde al tiempo que estara en rojo
-	movwf Temporizador_2
+    movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 2, corresponde al
+    addwf Tiempo_Via1, 0   ; Corresponde al tiempo que estara en rojo
+    movwf Temporizador_2
 
-	movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 3, corresponde al
-	movwf Temporizador_3       ; Corresponde al tiempo que estara en rojo
+    movf  Tiempo_Via3, 0   ; Actualización del tiempo de Via 3, corresponde al
+    movwf Temporizador_3   ; Corresponde al tiempo que estara en rojo
 endm    
     
