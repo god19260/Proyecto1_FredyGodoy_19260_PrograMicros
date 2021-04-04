@@ -2997,7 +2997,6 @@ loop:
 
     btfsc Banderas1,0 ; Bandera de multiplexión de displays ; Mostrar valores en displays cada 5ms
     goto Seleccion_Display
-
     goto loop
 ;---------- Fin Loop principal ---------------------------
 ;---------------------------------------------------------
@@ -3494,22 +3493,22 @@ Revisiones_Botones:
 
  Activar_Modo_2: ; Modo que actualiza tiempo de Via 1
      Indicador_Via1
-     movf Tiempo_Via1,0 ; Se coloca el valor del tiempo actual de la vía
-     movwf Tiempo_Modo2 ; 1 en la variable que se trabaja en modo 2
+     movf Tiempo_Via1,0 ; Se coloca el valor del tiempo actual de la
+     movwf Tiempo_Modo2 ; vía 1 en la variable que se trabaja en modo 2
      bsf Banderas1, 2
      bcf Banderas1, 1 ; Banderas Modo de funcionamiento
      goto Apagar_Banderas_B_Modo
  Activar_Modo_3: ; Modo que actualiza tiempo de Via 2
      Indicador_Via2
-     movf Tiempo_Via2,0 ; Se coloca el valor del tiempo actual de la vía
-     movwf Tiempo_Modo3 ; 2 en la variable que se trabaja en modo 3
+     movf Tiempo_Via2,0 ; Se coloca el valor del tiempo actual de la
+     movwf Tiempo_Modo3 ; vía 2 en la variable que se trabaja en modo 3
      bsf Banderas1, 3
      bcf Banderas1, 2
      goto Apagar_Banderas_B_Modo
  Activar_Modo_4: ; Modo que actualiza tiempo de Via 3
      Indicador_Via3
-     movf Tiempo_Via3,0 ; Se coloca el valor del tiempo actual de la vía
-     movwf Tiempo_Modo4 ; 3 en la variable que se trabaja en modo 4
+     movf Tiempo_Via3,0 ; Se coloca el valor del tiempo actual de la
+     movwf Tiempo_Modo4 ; vía 3 en la variable que se trabaja en modo 4
      bsf Banderas1, 4
      bcf Banderas1, 3
      goto Apagar_Banderas_B_Modo
@@ -3520,9 +3519,9 @@ Revisiones_Botones:
      goto Apagar_Banderas_B_Modo
  ; * * * *
  Apagar_Banderas_B_Modo:
-     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
-     bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
-     bcf Banderas_Botones, 7
+     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
+     bcf Banderas_Botones, 6 ; haya solo una operación por boton
+       bcf Banderas_Botones, 7 ; a la vez
  Fin_Boton_Modo:
 
     Boton_Inc:
@@ -3564,9 +3563,9 @@ Revisiones_Botones:
      bsf Banderas_Estados, 5
  ; * * * *
  Apagar_Banderas_B_Inc:
-     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
-     bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
-     bcf Banderas_Botones, 7
+     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
+     bcf Banderas_Botones, 6 ; haya solo una operación por boton
+       bcf Banderas_Botones, 7 ; a la vez
  Fin_Boton_Inc:
 
     Boton_Dec:
@@ -3608,9 +3607,9 @@ Revisiones_Botones:
  ; * * * * * * * */
 
  Apagar_Banderas_B_Dec:
-     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que haya
-     bcf Banderas_Botones, 6 ; solo una operación por boton a la vez
-     bcf Banderas_Botones, 7
+     bcf Banderas_Botones, 5 ; pines puerto B, Modo, Incremento y Decremento ; Se apagan las banderas para que
+     bcf Banderas_Botones, 6 ; haya solo una operación por boton
+       bcf Banderas_Botones, 7 ; a la vez
  Fin_Boton_Dec:
 return ; Regresa a loop
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

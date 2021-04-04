@@ -290,7 +290,7 @@ main:
     ;------- Activaciones de registros o puertos
     btfss    PORTB, 0      ; Primera instrucción que no genera interrupción
     nop 
-    bsf      Banderas_Dis, Dis_11     ; Encdender la bandera del display 1
+    bsf   Banderas_Dis, Dis_11         ; Encdender la bandera del display 1
     
     bsf	  Banderas_Estados, Estado_3        ; la primera vez que entre colocara
     bsf   Banderas_Estados, Cambio_Estado   ; los tiempos correctos en cada 
@@ -315,7 +315,6 @@ loop:
     
     btfsc   Banderas1,Dis_Multi  ; Mostrar valores en displays cada 5ms
     goto    Seleccion_Display 
-    
     goto loop
 ;---------- Fin Loop principal ---------------------------  
 ;---------------------------------------------------------  
@@ -332,26 +331,26 @@ Modos:
     goto  Modo4
     btfsc Banderas1, Modo_5
     goto  Modo5
-    goto Fin_Modos
+    goto  Fin_Modos
     Modo1:
 	; Funcionamiento Normal
 	goto Fin_Modos
     Modo2:
-	movf Tiempo_Modo2,0
+	movf  Tiempo_Modo2,0
 	movwf Tiempo_Modo
-	goto Fin_Modos
+	goto  Fin_Modos
     Modo3:
-	movf Tiempo_Modo3,0
+	movf  Tiempo_Modo3,0
 	movwf Tiempo_Modo
-	goto Fin_Modos
+	goto  Fin_Modos
     Modo4:
-	movf Tiempo_Modo4,0
+	movf  Tiempo_Modo4,0
 	movwf Tiempo_Modo
-	goto Fin_Modos
+	goto  Fin_Modos
     Modo5:
 	movlw 0
 	movwf Tiempo_Modo
-	goto Fin_Modos
+	goto  Fin_Modos
     Fin_Modos:
 return ; regresa a loop
 ;---------------------------------------------------------
@@ -361,10 +360,10 @@ Estados:      ; Estados de los semaforos
 	CambioDeEstado
 	
 	btfss Banderas_Estados, Cambio_Estado
-	goto Eleccion_Estado
+	goto  Eleccion_Estado
 	; Verificar que no toque resetear
 	btfsc Banderas_Estados, Estado_4
-	goto Estado4
+	goto  Estado4
 	
 	; Al cambiar de estado se deben restablecer los tiempos de cada vía  
 	Si_Toca_Cambiar_Estado:
@@ -377,23 +376,23 @@ Estados:      ; Estados de los semaforos
 	
 	TiemposParaVia_1:
 	    Tiempos_Via_1
-	    bcf Banderas_Estados, Estado_3 
-	    bsf Banderas_Estados, Estado_1 
-	    bcf Banderas_Estados, Cambio_Estado
+	    bcf  Banderas_Estados, Estado_3 
+	    bsf  Banderas_Estados, Estado_1 
+	    bcf  Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
 	TiemposParaVia_2:
 	    Tiempos_Via_2
-	    bcf Banderas_Estados, Estado_1 
-	    bsf Banderas_Estados, Estado_2 
-	    bcf Banderas_Estados, Cambio_Estado
+	    bcf  Banderas_Estados, Estado_1 
+	    bsf  Banderas_Estados, Estado_2 
+	    bcf  Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
 	TiemposParaVia_3:    
 	    Tiempos_Via_3
-	    bcf Banderas_Estados, Estado_2 
-	    bsf Banderas_Estados, Estado_3 
-	    bcf Banderas_Estados, Cambio_Estado
+	    bcf  Banderas_Estados, Estado_2 
+	    bsf  Banderas_Estados, Estado_3 
+	    bcf  Banderas_Estados, Cambio_Estado
 	    goto Eleccion_Estado
-	    goto  Fin_Estados
+	    goto Fin_Estados
     Eleccion_Estado:
 	btfsc Banderas_Estados, Estado_1    ; Revisar bandera del estado 1
 	goto  Estado1
@@ -403,7 +402,7 @@ Estados:      ; Estados de los semaforos
 	goto  Estado3
 	btfsc Banderas_Estados, Estado_4    ; Revisar bandera del estado 4
 	goto  Estado4
-	goto Fin_Estados
+	goto  Fin_Estados
     Estado1:       ; Via 1 en verde
         Dec_1Seg Temporizador_1, Un_Seg   ; Decrementos de los temporizadores
 	Dec_1Seg Temporizador_2, Un_Seg
@@ -442,7 +441,7 @@ Estados:      ; Estados de los semaforos
 	    movlw 3                    ; Activación del color amarillo cuando 
 	    subwf Temporizador_2, 0    ; falten 3 segundos de via
 	    btfss ZERO
-	    goto Fin_Estados
+	    goto  Fin_Estados
 	    btfss Banderas_Semaforos, Blink
 	    goto  Fin_Estados
 	    bcf   Banderas_Semaforos, Blink
@@ -464,39 +463,39 @@ Estados:      ; Estados de los semaforos
 	    movlw 3                    ; Activación del color amarillo cuando 
 	    subwf Temporizador_3, 0    ; falten 3 segundos de via
 	    btfss ZERO
-	    goto Fin_Estados
+	    goto  Fin_Estados
 	    btfss Banderas_Semaforos, Blink
 	    goto  Fin_Estados
 	    bcf   Banderas_Semaforos, Blink
 	    Semaforo3 Amarillo
 	    goto  Fin_Estados
     Estado4:       ; Reseteo
-        btfss Banderas_Estados, Reset_Inicio
-	goto Resetear
-	movf Tiempo_Modo2,0
-	movwf Tiempo_Via1
-	movf Tiempo_Modo3,0
-	movwf Tiempo_Via2
-	movf Tiempo_Modo4,0
-	movwf Tiempo_Via3
-	bcf Banderas_Estados, Estado_1
-	bcf Banderas_Estados, Estado_2
-	bcf Banderas_Estados, Estado_3
-	bcf Banderas_Estados, Reset_Inicio
-	bsf  Banderas_Estados, Cambio_Estado
-	clrf Contador_3Seg
-	clrf Contador_1Seg
-	clrf Contador_Blink
+        btfss  Banderas_Estados, Reset_Inicio
+	goto   Resetear
+	movf   Tiempo_Modo2,0
+	movwf  Tiempo_Via1
+	movf   Tiempo_Modo3,0
+	movwf  Tiempo_Via2
+	movf   Tiempo_Modo4,0
+	movwf  Tiempo_Via3
+	bcf    Banderas_Estados, Estado_1
+	bcf    Banderas_Estados, Estado_2
+	bcf    Banderas_Estados, Estado_3
+	bcf    Banderas_Estados, Reset_Inicio
+	bsf    Banderas_Estados, Cambio_Estado
+	clrf   Contador_3Seg
+	clrf   Contador_1Seg
+	clrf   Contador_Blink
 	Off_Semaforos ; apaga todos los semaforos para prepara el reseteo
 	Resetear:
 	    Reseteo
-	    clrf Temporizador_1
-	    clrf Temporizador_2
-	    clrf Temporizador_3
+	    clrf  Temporizador_1
+	    clrf  Temporizador_2
+	    clrf  Temporizador_3
 	    btfss Banderas_Semaforos, Tres_Seg
-	    goto Fin_Estados
-	    bcf  Banderas_Estados, Estado_4
-	    bsf  Banderas_Estados, Estado_3
+	    goto  Fin_Estados
+	    bcf   Banderas_Estados, Estado_4
+	    bsf   Banderas_Estados, Estado_3
     Fin_Estados:
 return ; Regresa al loop principal
     
@@ -586,7 +585,7 @@ Encender_Dis11:
     
     bcf     Banderas_Dis, Dis_42     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_11     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 Encender_Dis12:
     movf    V_Display_12,0
     movwf   PORTA
@@ -595,7 +594,7 @@ Encender_Dis12:
     
     bcf     Banderas_Dis, Dis_11     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_12     ; Encender bandera del display actual
-    goto loop    
+    goto    loop    
 Encender_Dis21:
     movf    V_Display_21,0
     movwf   PORTA
@@ -604,7 +603,7 @@ Encender_Dis21:
     
     bcf     Banderas_Dis, Dis_12     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_21     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 Encender_Dis22:
     movf    V_Display_22,0
     movwf   PORTA
@@ -613,7 +612,7 @@ Encender_Dis22:
     
     bcf     Banderas_Dis, Dis_21     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_22     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 Encender_Dis31:
     movf    V_Display_31,0
     movwf   PORTA
@@ -622,7 +621,7 @@ Encender_Dis31:
     
     bcf     Banderas_Dis, Dis_22     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_31     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 Encender_Dis32:
     movf    V_Display_32,0
     movwf   PORTA
@@ -631,7 +630,7 @@ Encender_Dis32:
     
     bcf     Banderas_Dis, Dis_31     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_32     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 
 Encender_Dis41:
     movf    V_Display_41,0
@@ -641,7 +640,7 @@ Encender_Dis41:
     
     bcf     Banderas_Dis, Dis_32     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_41     ; Encender bandera del display actual
-    goto loop
+    goto    loop
 Encender_Dis42:
     movf    V_Display_42,0
     movwf   PORTA
@@ -650,7 +649,7 @@ Encender_Dis42:
     
     bcf     Banderas_Dis, Dis_41     ; Apagar bandera del display anterior
     bsf     Banderas_Dis, Dis_42     ; Encender bandera del display actual
-    goto loop
+    goto    loop
     
 Actualizacion_Valores_Displays:
     clrf    Decenas_Via1
@@ -812,35 +811,35 @@ Revisiones_Botones:
 
 	Activar_Modo_2:  ; Modo que actualiza tiempo de Via 1
 	    Indicador_Via1
-	    movf Tiempo_Via1,0  ; Se coloca el valor del tiempo actual de la vía  
-	    movwf Tiempo_Modo2  ; 1 en la variable que se trabaja en modo 2
-	    bsf Banderas1, Modo_2
-	    bcf Banderas1, Modo_1
+	    movf  Tiempo_Via1,0  ; Se coloca el valor del tiempo actual de la  
+	    movwf Tiempo_Modo2   ; vía 1 en la variable que se trabaja en modo 2
+	    bsf   Banderas1, Modo_2
+	    bcf   Banderas1, Modo_1
 	    goto  Apagar_Banderas_B_Modo
 	Activar_Modo_3:  ; Modo que actualiza tiempo de Via 2
 	    Indicador_Via2
-	    movf Tiempo_Via2,0  ; Se coloca el valor del tiempo actual de la vía  
-	    movwf Tiempo_Modo3  ; 2 en la variable que se trabaja en modo 3
-	    bsf Banderas1, Modo_3
-	    bcf Banderas1, Modo_2
+	    movf  Tiempo_Via2,0  ; Se coloca el valor del tiempo actual de la  
+	    movwf Tiempo_Modo3   ; vía 2 en la variable que se trabaja en modo 3
+	    bsf   Banderas1, Modo_3
+	    bcf   Banderas1, Modo_2
 	    goto  Apagar_Banderas_B_Modo
 	Activar_Modo_4:  ; Modo que actualiza tiempo de Via 3
 	    Indicador_Via3
-	    movf Tiempo_Via3,0  ; Se coloca el valor del tiempo actual de la vía  
-	    movwf Tiempo_Modo4  ; 3 en la variable que se trabaja en modo 4
-	    bsf Banderas1, Modo_4
-	    bcf Banderas1, Modo_3
+	    movf  Tiempo_Via3,0  ; Se coloca el valor del tiempo actual de la  
+	    movwf Tiempo_Modo4   ; vía 3 en la variable que se trabaja en modo 4
+	    bsf   Banderas1, Modo_4
+	    bcf   Banderas1, Modo_3
 	    goto  Apagar_Banderas_B_Modo
 	Activar_Modo_5:
 	    Indicador_Modo5
-	    bsf Banderas1, Modo_5
-	    bcf Banderas1, Modo_4
+	    bsf   Banderas1, Modo_5
+	    bcf   Banderas1, Modo_4
 	    goto  Apagar_Banderas_B_Modo
 	;/*/*/*/*/*/*/*/*/*/*/*/*/*/*/
 	Apagar_Banderas_B_Modo:
-	    bcf Banderas_Botones, B_Modo ; Se apagan las banderas para que haya 
-	    bcf Banderas_Botones, B_Inc  ; solo una operación por boton a la vez
-	    bcf Banderas_Botones, B_Dec
+	    bcf   Banderas_Botones, B_Modo ; Se apagan las banderas para que  
+	    bcf   Banderas_Botones, B_Inc  ; haya solo una operación por boton 
+  	    bcf   Banderas_Botones, B_Dec  ; a la vez
 	Fin_Boton_Modo:
     
     Boton_Inc:
@@ -863,28 +862,28 @@ Revisiones_Botones:
 	goto  Apagar_Banderas_B_Inc
 	
 	Inc_Modo2:
-	    incf Tiempo_Modo2,1
+	    incf  Tiempo_Modo2,1
 	    Overflow Tiempo_Modo2
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	Inc_Modo3:
-	    incf Tiempo_Modo3,1
+	    incf  Tiempo_Modo3,1
 	    Overflow Tiempo_Modo3
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	Inc_Modo4:
-	    incf Tiempo_Modo4,1
+	    incf  Tiempo_Modo4,1
 	    Overflow Tiempo_Modo4
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	Guardar:
 	    Indicador_Modo1
-	    bsf Banderas1, Modo_1
-	    bcf Banderas1, Modo_5
-	    bsf Banderas_Estados, Estado_4
-	    bsf Banderas_Estados, Reset_Inicio
+	    bsf   Banderas1, Modo_1
+	    bcf   Banderas1, Modo_5
+	    bsf   Banderas_Estados, Estado_4
+	    bsf   Banderas_Estados, Reset_Inicio
 	;/*/*/*/*/*/*/*/*/*/*/*/*/*/*/
 	Apagar_Banderas_B_Inc:
-	    bcf Banderas_Botones, B_Modo ; Se apagan las banderas para que haya 
-	    bcf Banderas_Botones, B_Inc  ; solo una operación por boton a la vez
-	    bcf Banderas_Botones, B_Dec
+	    bcf   Banderas_Botones, B_Modo ; Se apagan las banderas para que  
+	    bcf   Banderas_Botones, B_Inc  ; haya solo una operación por boton 
+  	    bcf   Banderas_Botones, B_Dec  ; a la vez
 	Fin_Boton_Inc: 
     
     Boton_Dec:
@@ -907,28 +906,28 @@ Revisiones_Botones:
 	goto  Apagar_Banderas_B_Inc
 	
 	Dec_Modo2:
-	    Decf Tiempo_Modo2,1
+	    Decf  Tiempo_Modo2,1
 	    Underflow Tiempo_Modo2
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	Dec_Modo3:
-	    Decf Tiempo_Modo3,1
+	    Decf  Tiempo_Modo3,1
 	    Underflow Tiempo_Modo3
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	Dec_Modo4:
-	    decf Tiempo_Modo4,1
+	    decf  Tiempo_Modo4,1
 	    Underflow Tiempo_Modo4
-	    goto Apagar_Banderas_B_Inc
+	    goto  Apagar_Banderas_B_Inc
 	No_Guardar:
 	    Indicador_Modo1
 	    ; No guarda los valores colocados en cada uno de los modos
-	    bsf Banderas1, Modo_1
-	    bcf Banderas1, Modo_5
+	    bsf   Banderas1, Modo_1
+	    bcf   Banderas1, Modo_5
 	;/*/*/*/*/*/*/*/*/*/*/
 	;/*/*/*/*/*/*/*/*/*/*/*/*/*/*/
 	Apagar_Banderas_B_Dec:
-	    bcf Banderas_Botones, B_Modo ; Se apagan las banderas para que haya 
-	    bcf Banderas_Botones, B_Inc  ; solo una operación por boton a la vez
-	    bcf Banderas_Botones, B_Dec
+	    bcf   Banderas_Botones, B_Modo ; Se apagan las banderas para que  
+	    bcf   Banderas_Botones, B_Inc  ; haya solo una operación por boton 
+  	    bcf   Banderas_Botones, B_Dec  ; a la vez
 	Fin_Boton_Dec:  
 return ; Regresa a loop 
 ;*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
