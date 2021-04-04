@@ -5,14 +5,12 @@ Semaforo1 macro color
     bcf PORTD, 2
     bsf PORTD, color
 endm
-
 Semaforo2 macro color
     bcf PORTD, 3
     bcf PORTD, 4
     bcf PORTD, 5
     bsf PORTD, color+3
 endm
-
 Semaforo3 macro color
     bcf PORTE, 0
     bcf PORTE, 1
@@ -125,7 +123,7 @@ Blink_Semaforo3 macro color
 endm
     
 Reseteo macro
-    btfss Banderas_Semaforos, 2
+    btfss Banderas_Semaforos, 2 ; Bandera de medio segundo
     goto Fin_Reseteo
     
     btfsc PORTE, 2
@@ -146,11 +144,6 @@ Reseteo macro
     Fin_Reseteo:
 endm 
  
-Nuevo_Tiempo macro tiempo, contador
-    movlw tiempo
-    movwf contador
-endm
-
 Dec_1Seg macro temporizador, bandera
     btfsc Banderas_Semaforos, bandera
     decf temporizador,1
