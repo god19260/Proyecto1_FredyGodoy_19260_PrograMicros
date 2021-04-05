@@ -2,8 +2,11 @@
 # 1 "<built-in>" 1
 # 1 "Proyecto_1.s" 2
 ; Fredy Godoy 19260
+; Universidad del Valle de Guatemala
 ; Programación de Microcontroladores
-; Proyecto 1
+; Proyecto 1 - Semaforo 3 Vías basado en PIC16F887
+; 06 de abril del 2021
+
 
 processor 16F887
 
@@ -2452,7 +2455,7 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 7 "C:\\Program Files\\Microchip\\xc8\\v2.20\\pic\\include\\xc.inc" 2 3
-# 7 "Proyecto_1.s" 2
+# 10 "Proyecto_1.s" 2
 # 1 "./Macros.s" 1
 
 Semaforo1 macro color
@@ -2693,7 +2696,7 @@ Tiempos_Via_3 macro
     movf Tiempo_Via3, 0 ; Actualización del tiempo de Via 3, corresponde al
     movwf Temporizador_3 ; Corresponde al tiempo que estara en rojo
 endm
-# 8 "Proyecto_1.s" 2
+# 11 "Proyecto_1.s" 2
  ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on ((PORTA) and 07Fh), 6/OSC2/CLKOUT pin, I/O function on ((PORTA) and 07Fh), 7/OSC1/CLKIN)
   CONFIG WDTE = OFF ; Watchdog Timer Enable bit (WDT enabled)
@@ -2743,7 +2746,7 @@ PSECT udata_bank0
 
 
     Banderas_Dis: DS 1
-# 65 "Proyecto_1.s"
+# 68 "Proyecto_1.s"
     V_Display_11: DS 1 ; Valor que muestra mostrará el display
     V_Display_12: DS 1
     V_Display_21: DS 1
@@ -3490,8 +3493,16 @@ Revisiones_Botones:
  goto Activar_Modo_4
  btfsc Banderas1, 4
  goto Activar_Modo_5
+ btfsc Banderas1, 5
+ goto Activar_Modo_1
  goto Apagar_Banderas_B_Modo
-
+        Activar_Modo_1: ; Modo que actualiza tiempo de Via 1
+     Indicador_Modo1
+     movf Tiempo_Via1,0 ; Se coloca el valor del tiempo actual de la
+     movwf Tiempo_Modo2 ; vía 1 en la variable que se trabaja en modo 2
+     bsf Banderas1, 1 ; Banderas Modo de funcionamiento
+     bcf Banderas1, 5
+     goto Apagar_Banderas_B_Modo
  Activar_Modo_2: ; Modo que actualiza tiempo de Via 1
      Indicador_Via1
      movf Tiempo_Via1,0 ; Se coloca el valor del tiempo actual de la

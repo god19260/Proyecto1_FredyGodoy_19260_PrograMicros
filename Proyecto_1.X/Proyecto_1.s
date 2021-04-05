@@ -1,6 +1,9 @@
 ; Fredy Godoy 19260
+; Universidad del Valle de Guatemala    
 ; Programación de Microcontroladores
-; Proyecto 1
+; Proyecto 1 - Semaforo 3 Vías basado en PIC16F887
+; 06 de abril del 2021    
+    
     
 processor 16F887
 #include <xc.inc>
@@ -126,7 +129,7 @@ isr:
     goto   Interrupcion_PORTB;Interrupcion Puerto B
    
     btfsc  T0IF
-    goto   Temporizador    ;Interrupcion timer0
+    goto   Temporizador      ;Interrupcion timer0
     
     bcf    T0IF
     BCF    RBIF
@@ -808,8 +811,16 @@ Revisiones_Botones:
 	goto  Activar_Modo_4
 	btfsc Banderas1, Modo_4
 	goto  Activar_Modo_5
+	btfsc Banderas1, Modo_5
+	goto  Activar_Modo_1
 	goto  Apagar_Banderas_B_Modo
-
+        Activar_Modo_1:  ; Modo que actualiza tiempo de Via 1
+	    Indicador_Modo1
+	    movf  Tiempo_Via1,0  ; Se coloca el valor del tiempo actual de la  
+	    movwf Tiempo_Modo2   ; vía 1 en la variable que se trabaja en modo 2
+	    bsf   Banderas1, Modo_1
+	    bcf   Banderas1, Modo_5
+	    goto  Apagar_Banderas_B_Modo
 	Activar_Modo_2:  ; Modo que actualiza tiempo de Via 1
 	    Indicador_Via1
 	    movf  Tiempo_Via1,0  ; Se coloca el valor del tiempo actual de la  
